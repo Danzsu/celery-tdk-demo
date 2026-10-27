@@ -158,7 +158,7 @@ class Signal:  # pragma: no cover
                             interval = next(intervals)
                             err_msg = RECEIVER_RETRY_ERROR % \
                                 {'receiver': retry_fun,
-                                 'when': humanize_seconds(interval, prefix='in', sep=' ')}
+                                 'when': humanize_seconds(interval, 'in', ' ')}
                             logger.error(err_msg)
                             return interval
 

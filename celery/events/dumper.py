@@ -85,7 +85,7 @@ def evdump(app=None, out=sys.stdout):
 
     def _error_handler(exc, interval):
         dumper.say(CONNECTION_ERROR % (
-            conn.as_uri(), exc, humanize_seconds(interval, prefix='in', sep=' ')
+            conn.as_uri(), exc, humanize_seconds(interval, 'in', ' ')
         ))
 
     while 1:
