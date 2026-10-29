@@ -65,7 +65,6 @@ ZERO = timedelta(0)
 
 _local_timezone = None
 
-
 class LocalTimezone(tzinfo):
     """Local time implementation. Provided in _Zone to the app when `enable_utc` is disabled.
     Otherwise, _Zone provides a UTC ZoneInfo instance as the timezone implementation for the application.
@@ -121,7 +120,6 @@ class LocalTimezone(tzinfo):
         stamp = _time.mktime(tt)
         tt = _time.localtime(stamp)
         return tt.tm_isdst > 0
-
 
 class _Zone:
     """Timezone class that provides the timezone for the application.
@@ -182,16 +180,13 @@ class _Zone:
         """Return UTC timezone created with ZoneInfo."""
         return self.get_timezone('UTC')
 
-
 timezone = _Zone()
-
 
 def maybe_timedelta(delta: int) -> timedelta:
     """Convert integer to timedelta, if argument is an integer."""
     if isinstance(delta, numbers.Real):
         return timedelta(seconds=delta)
     return delta
-
 
 def delta_resolution(dt: datetime, delta: timedelta) -> datetime:
     """Round a :class:`~datetime.datetime` to the resolution of timedelta.
@@ -216,7 +211,6 @@ def delta_resolution(dt: datetime, delta: timedelta) -> datetime:
             return datetime(*args[:res], tzinfo=dt.tzinfo, fold=dt.fold)
     return dt
 
-
 def _relative_end_dates(dt: datetime, delta: timedelta) -> list[datetime]:
     """Return UTC occurrences of a rounded local deadline."""
     rounded = delta_resolution(dt, delta).replace(microsecond=0)
@@ -231,7 +225,6 @@ def _relative_end_dates(dt: datetime, delta: timedelta) -> list[datetime]:
                 candidate = resolved
         dates.append(candidate.astimezone(timezone.utc))
     return dates
-
 
 def remaining(
         start: datetime, ends_in: timedelta | ffwd, now: datetime | None = None,
@@ -258,7 +251,7 @@ def remaining(
     """
     now = now or datetime.now(datetime_timezone.utc)
     if isinstance(ends_in, timedelta) and not (
-            relative and ends_in >= timedelta(days=1)):
+        relative and ends_in >= timedelta(days=1)):
         end_date = add_seconds_to_datetime(start, ends_in.total_seconds())
     else:
         # Day-resolution relative schedules advance by local calendar days.
@@ -306,7 +299,6 @@ def remaining(
         )
     return ret
 
-
 def rate(r: str) -> float:
     """Convert rate string (`"100/m"`, `"2/h"` or `"0.5/s"`) to seconds."""
     if r:
@@ -316,36 +308,30 @@ def rate(r: str) -> float:
         return r or 0
     return 0
 
+def _get_lookup(name: str, mapping: dict[str, int]) -> int:
+    abbreviation = name[0:3].lower()
+    try:
+        return mapping[abbreviation]
+    except KeyError:
+        raise KeyError(name)
 
 def weekday(name: str) -> int:
     """Return the position of a weekday: 0 - 7, where 0 is Sunday.
 
     Example:
-        >>> weekday('sunday'), weekday('sun'), weekday('mon')
-        (0, 0, 1)
+    >>> weekday('sunday'), weekday('sun'), weekday('mon')
+    (0, 0, 1)
     """
-    abbreviation = name[0:3].lower()
-    try:
-        return WEEKDAYS[abbreviation]
-    except KeyError:
-        # Show original day name in exception, instead of abbr.
-        raise KeyError(name)
-
+    return _get_lookup(name, WEEKDAYS)
 
 def yearmonth(name: str) -> int:
     """Return the position of a month: 1 - 12, where 1 is January.
 
     Example:
-        >>> yearmonth('january'), yearmonth('jan'), yearmonth('may')
-        (1, 1, 5)
+    >>> yearmonth('january'), yearmonth('jan'), yearmonth('may')
+    (1, 1, 5)
     """
-    abbreviation = name[0:3].lower()
-    try:
-        return YEARMONTHS[abbreviation]
-    except KeyError:
-        # Show original day name in exception, instead of abbr.
-        raise KeyError(name)
-
+    return _get_lookup(name, YEARMONTHS)
 
 def humanize_seconds(
         secs: int, prefix: str = '', sep: str = '', now: str = 'now',
@@ -371,7 +357,6 @@ def humanize_seconds(
             secs, sep=sep, prefix=prefix)
     return now
 
-
 def maybe_iso8601(dt: datetime | str | None) -> None | datetime:
     """Either ``datetime | str -> datetime`` or ``None -> None``."""
     if not dt:
@@ -380,11 +365,9 @@ def maybe_iso8601(dt: datetime | str | None) -> None | datetime:
         return dt
     return isoparse(dt)
 
-
 def is_naive(dt: datetime) -> bool:
     """Return True if :class:`~datetime.datetime` is naive, meaning it doesn't have timezone info set."""
     return dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None
-
 
 def add_seconds_to_datetime(dt: datetime, seconds: float) -> datetime:
     """Add elapsed seconds, preserving naive datetime behavior."""
@@ -393,19 +376,16 @@ def add_seconds_to_datetime(dt: datetime, seconds: float) -> datetime:
         return dt + delta
     return (dt.astimezone(datetime_timezone.utc) + delta).astimezone(dt.tzinfo)
 
-
 def subtract_datetimes(end: datetime, start: datetime) -> timedelta:
     """Return the elapsed time between two datetimes, treating naive datetimes as UTC."""
     end_utc = maybe_make_aware(end).astimezone(datetime_timezone.utc)
     start_utc = maybe_make_aware(start).astimezone(datetime_timezone.utc)
     return end_utc - start_utc
 
-
 def _can_detect_ambiguous(tz: tzinfo) -> bool:
     """Helper function to determine if a timezone can detect ambiguous times using dateutil."""
 
     return isinstance(tz, ZoneInfo) or hasattr(tz, "is_ambiguous")
-
 
 def _is_ambiguous(dt: datetime, tz: tzinfo) -> bool:
     """Helper function to determine if a timezone is ambiguous using python's dateutil module.
@@ -416,9 +396,7 @@ def _is_ambiguous(dt: datetime, tz: tzinfo) -> bool:
     method. Previously, pytz timezones would throw an AmbiguousTimeError if the localized dt was ambiguous,
     but now we need to specifically check for ambiguity with dateutil, as pytz is deprecated.
     """
-
     return _can_detect_ambiguous(tz) and dateutil_tz.datetime_ambiguous(dt)
-
 
 def _is_imaginary(dt: datetime, tz: tzinfo) -> bool:
     """Return True if ``dt`` does not exist in ``tz`` due to a DST transition."""
@@ -431,7 +409,6 @@ def _is_imaginary(dt: datetime, tz: tzinfo) -> bool:
     except ValueError:
         return False
 
-
 def make_aware(dt: datetime, tz: tzinfo) -> datetime:
     """Set timezone for a :class:`~datetime.datetime` object."""
 
@@ -442,7 +419,6 @@ def make_aware(dt: datetime, tz: tzinfo) -> datetime:
         else:
             dt = min(dt.replace(fold=0), dt.replace(fold=1))
     return dt
-
 
 def localize(dt: datetime, tz: tzinfo) -> datetime:
     """Convert aware :class:`~datetime.datetime` to another timezone.
@@ -455,11 +431,9 @@ def localize(dt: datetime, tz: tzinfo) -> datetime:
         dt = dt.astimezone(tz)  # Always safe to call astimezone on utc zones
     return dt
 
-
 def to_utc(dt: datetime) -> datetime:
     """Convert naive :class:`~datetime.datetime` to UTC."""
     return make_aware(dt, timezone.utc)
-
 
 def maybe_make_aware(dt: datetime, tz: tzinfo | None = None,
                      naive_as_utc: bool = True) -> datetime:
@@ -472,14 +446,13 @@ def maybe_make_aware(dt: datetime, tz: tzinfo | None = None,
         )
     return dt
 
-
 class ffwd:
     """Version of ``dateutil.relativedelta`` that only supports addition."""
 
     def __init__(self, year=None, month=None, weeks=0, weekday=None, day=None,
                  hour=None, minute=None, second=None, microsecond=None,
                  **kwargs: Any):
-        # pylint: disable=redefined-outer-name
+        # pylint: disable=redefined_outer_name
         # weekday is also a function in outer scope.
         self.year = year
         self.month = month
@@ -516,7 +489,6 @@ class ffwd:
             'second': self.second, 'microsecond': self.microsecond,
         }, **extra)
 
-
 def utcoffset(
         time: ModuleType = _time,
         localtime: Callable[..., _time.struct_time] = _time.localtime) -> float:
@@ -533,12 +505,10 @@ def utcoffset(
         return time.altzone / 3600
     return time.timezone / 3600
 
-
 def adjust_timestamp(ts: float, offset: float,
                      here: Callable[..., float] = utcoffset) -> float:
     """Adjust timestamp based on provided utcoffset."""
     return ts - (offset - here()) * 3600
-
 
 def get_exponential_backoff_interval(
     factor: int,
