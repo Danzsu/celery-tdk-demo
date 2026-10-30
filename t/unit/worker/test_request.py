@@ -19,7 +19,7 @@ from celery.backends.base import BaseDictBackend
 from celery.exceptions import (Ignore, InvalidTaskError, Reject, Retry, TaskRevokedError, Terminated,
                                TimeLimitExceeded, WorkerLostError)
 from celery.signals import task_failure, task_retry, task_revoked
-from celery.utils.time import maybe_make_aware
+from celery.utils.time import ensure_aware
 from celery.worker import request as module
 from celery.worker import strategy
 from celery.worker.request import Request, create_request_cls
@@ -260,10 +260,10 @@ class test_Request(RequestCase):
             self.get_request(self.add.s(2, 2).set(expires='12345'))
 
     def test_valid_expires_with_utc_makes_aware(self):
-        with patch('celery.worker.request.maybe_make_aware') as mma:
+        with patch('celery.worker.request.ensure_aware') as ensure_aware_mock:
             self.get_request(self.add.s(2, 2).set(expires=10),
-                             maybe_make_aware=mma)
-            mma.assert_called()
+                             maybe_make_aware=ensure_aware_mock)
+            ensure_aware_mock.assert_called()
 
     def test_maybe_expire_when_expires_is_None(self):
         req = self.get_request(self.add.s(2, 2))
@@ -305,7 +305,7 @@ class test_Request(RequestCase):
     ])
     def test_maybe_expire_across_dst(self, now, expires, should_expire):
         self.app.conf.timezone = 'America/New_York'
-        expires = maybe_make_aware(expires.replace(tzinfo=None), 'America/New_York')
+        expires = ensure_aware(expires.replace(tzinfo=None), 'America/New_York')
         job = self.xRequest(expires=expires)
 
         with freeze_time(now):

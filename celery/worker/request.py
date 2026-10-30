@@ -26,7 +26,7 @@ from celery.utils.log import get_logger
 from celery.utils.nodenames import gethostname
 from celery.utils.saferepr import saferepr
 from celery.utils.serialization import get_pickled_exception
-from celery.utils.time import maybe_iso8601, maybe_make_aware, timezone
+from celery.utils.time import ensure_aware, maybe_iso8601, timezone
 
 from . import state
 
@@ -99,7 +99,7 @@ class Request:
                  connection_errors=None, request_dict=None,
                  task=None, on_reject=noop, body=None,
                  headers=None, decoded=False, utc=True,
-                 maybe_make_aware=maybe_make_aware,
+                 maybe_make_aware=ensure_aware,
                  maybe_iso8601=maybe_iso8601, **opts):
         self._message = message
         self._request_dict = (message.headers.copy() if headers is None
@@ -146,7 +146,7 @@ class Request:
             except (AttributeError, ValueError, TypeError) as exc:
                 raise InvalidTaskError(
                     f'invalid ETA value {eta!r}: {exc}')
-            self._eta = maybe_make_aware(eta, self.tzlocal)
+            self._eta = ensure_aware(eta, self.tzlocal)
         else:
             self._eta = None
 
@@ -157,7 +157,7 @@ class Request:
             except (AttributeError, ValueError, TypeError) as exc:
                 raise InvalidTaskError(
                     f'invalid expires value {expires!r}: {exc}')
-            self._expires = maybe_make_aware(expires, self.tzlocal)
+            self._expires = ensure_aware(expires, self.tzlocal)
         else:
             self._expires = None
 

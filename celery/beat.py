@@ -33,7 +33,7 @@ from .utils.functional import is_numeric_value
 from .utils.imports import load_extension_class_names, symbol_by_name
 from .utils.log import get_logger, iter_open_logger_fds
 from .utils.nodenames import default_nodename, host_format
-from .utils.time import humanize_seconds, maybe_make_aware
+from .utils.time import ensure_aware, humanize_seconds
 
 __all__ = (
     'SchedulingError', 'ScheduleEntry', 'Scheduler',
@@ -315,7 +315,7 @@ class Scheduler:
         """Return a utc timestamp, make sure heapq in correct order."""
         adjust = self.adjust
 
-        as_now = maybe_make_aware(entry.default_now())
+        as_now = ensure_aware(entry.default_now())
 
         return (mktime(as_now.utctimetuple()) +
                 as_now.microsecond / 1e6 +
