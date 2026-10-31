@@ -824,8 +824,7 @@ def report_internal_error(task, exc):
         _value = task.backend.prepare_exception(exc, 'pickle')
         exc_info = ExceptionInfo((_type, _value, _tb), internal=True)
         warn(RuntimeWarning(
-            'Exception raised outside body: {!r}:\n{}'.format(
-                exc, exc_info.traceback)))
+            f'Exception raised outside body: {exc!r}:\n{exc_info.traceback}'))
         return exc_info
     finally:
         del _tb

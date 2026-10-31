@@ -254,7 +254,7 @@ def _revoke(state, task_ids, terminate=False, signal=None, **kwargs):
 
         if not terminated:
             return ok('terminate: tasks unknown')
-        return ok('terminate: {}'.format(', '.join(terminated)))
+        return ok(f'terminate: {", ".join(terminated)}')
 
     idstr = ', '.join(task_ids)
     logger.info('Tasks flagged as revoked: %s', idstr)
@@ -503,7 +503,7 @@ def registered(state, taskinfoitems=None, builtins=False, **kwargs):
         }
         if fields:
             info = ['='.join(f) for f in fields.items()]
-            return '{} [{}]'.format(task.name, ' '.join(info))
+            return f'{task.name} [{" ".join(info)}]'
         return task.name
 
     return [_extract_info(reg[task]) for task in sorted(tasks)]

@@ -378,7 +378,7 @@ class CursesMonitor:  # pragma: no cover
                 else:
                     info = selection.info()
                     if 'runtime' in info:
-                        info['runtime'] = '{:.2f}'.format(info['runtime'])
+                        info['runtime'] = f"{info['runtime']:.2f}"
                     if 'result' in info:
                         info['result'] = abbr(info['result'], 16)
                     info = ' '.join(
@@ -492,8 +492,8 @@ class DisplayThread(threading.Thread):  # pragma: no cover
 def capture_events(app, state, display):  # pragma: no cover
 
     def on_connection_error(exc, interval):
-        print('Connection Error: {!r}.  Retry in {}s.'.format(
-            exc, interval), file=sys.stderr)
+        print(f'Connection Error: {exc!r}.  Retry in {interval}s.',
+              file=sys.stderr)
 
     while 1:
         print('-> evtop: starting capture...', file=sys.stderr)

@@ -112,8 +112,7 @@ class DatabaseBackend(BaseBackend):
             engine_callback = symbol_by_name(engine_callback)
         if engine_callback is not None and not callable(engine_callback):
             raise ImproperlyConfigured(
-                'database_engine_callback must be callable, got {!r}'.format(
-                    engine_callback))
+                f'database_engine_callback must be callable, got {engine_callback!r}')
         self.session_manager = SessionManager(
             engine_callback=engine_callback)
 

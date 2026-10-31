@@ -10,7 +10,7 @@ from celery.platforms import detached, set_process_title, strargv
 
 
 def _set_process_status(prog, info=''):
-    prog = '{}:{}'.format('celery events', prog)
+    prog = f'celery events:{prog}'
     info = f'{info} {strargv(sys.argv)}'
     return set_process_title(prog, info=info)
 

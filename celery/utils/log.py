@@ -163,9 +163,7 @@ class ColorFormatter(logging.Formatter):
                     return safe_str(msg)  # skip colors
             except Exception as exc:  # pylint: disable=broad-except
                 prev_msg, record.exc_info, record.msg = (
-                    record.msg, 1, '<Unrepresentable {!r}: {!r}>'.format(
-                        type(msg), exc
-                    ),
+                    record.msg, 1, f'<Unrepresentable {type(msg)!r}: {exc!r}>',
                 )
                 try:
                     return super().format(record)

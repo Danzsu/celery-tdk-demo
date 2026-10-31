@@ -54,10 +54,8 @@ class Dumper:
         if type.startswith('task-'):
             uuid = ev.pop('uuid')
             if type in ('task-received', 'task-sent'):
-                task = TASK_NAMES[uuid] = '{}({}) args={} kwargs={}' \
-                    .format(ev.pop('name'), uuid,
-                            ev.pop('args'),
-                            ev.pop('kwargs'))
+                task = TASK_NAMES[uuid] = f"{ev.pop('name')}({uuid}) args={ev.pop('args')} " \
+                    f"kwargs={ev.pop('kwargs')}"
             else:
                 task = TASK_NAMES.get(uuid, '')
             return self.format_task_event(hostname, timestamp,

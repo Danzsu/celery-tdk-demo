@@ -34,8 +34,8 @@ class Loader(BaseLoader):
             # billiard sets this if forked using execv
             if C_WNOCONF and not os.environ.get('FORKED_BY_MULTIPROCESSING'):
                 warnings.warn(NotConfigured(
-                    'No {module} module found! Please make sure it exists and '
-                    'is available to Python.'.format(module=configname)),
+                    f'No {configname} module found! Please make sure it exists and '
+                    'is available to Python.'),
                     stacklevel=2,
                 )
             return self.setup_settings({})

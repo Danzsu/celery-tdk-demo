@@ -139,8 +139,7 @@ def dump_body(m, body):
     """Format message body for debugging purposes."""
     # v2 protocol does not deserialize body
     body = m.body if body is None else body
-    return '{} ({}b)'.format(truncate(safe_repr(body), 1024),
-                             len(m.body))
+    return f'{truncate(safe_repr(body), 1024)} ({len(m.body)}b)'
 
 
 class Consumer:
@@ -887,9 +886,7 @@ class Consumer:
 
     def __repr__(self):
         """``repr(self)``."""
-        return '<Consumer: {self.hostname} ({state})>'.format(
-            self=self, state=self.blueprint.human_state(),
-        )
+        return f'<Consumer: {self.hostname} ({self.blueprint.human_state()})>'
 
     def cancel_active_requests(self):
         """Cancel active requests during shutdown.

@@ -106,9 +106,7 @@ def pretty(value: str, width: int = 80, nl_width: int = 80, sep: str = '\n', **
     if isinstance(value, dict):
         return f'{sep} {pformat(value, 4, nl_width)[1:]}'
     elif isinstance(value, tuple):
-        return '{}{}{}'.format(
-            sep, ' ' * 4, pformat(value, width=nl_width, **kw),
-        )
+        return f'{sep}{" " * 4}{pformat(value, width=nl_width, **kw)}'
     else:
         return pformat(value, width=width, **kw)
 

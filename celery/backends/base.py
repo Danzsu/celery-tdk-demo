@@ -1441,9 +1441,7 @@ class BaseKeyValueStoreBackend(Backend):
             except Exception as exc:  # pylint: disable=broad-except
                 try:
                     culprit = next(deps._failed_join_report())
-                    reason = 'Dependency {0.id} raised {1!r}'.format(
-                        culprit, exc,
-                    )
+                    reason = f'Dependency {culprit.id} raised {exc!r}'
                 except StopIteration:
                     reason = repr(exc)
                 logger.exception('Chord %r raised: %r', gid, reason)

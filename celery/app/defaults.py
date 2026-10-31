@@ -59,8 +59,7 @@ class Option:
         return self.typemap[self.type](value)
 
     def __repr__(self):
-        return '<Option: type->{} default->{!r}>'.format(self.type,
-                                                         self.default)
+        return f'<Option: type->{self.type} default->{self.default!r}>'
 
 
 NAMESPACES = Namespace(

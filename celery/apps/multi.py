@@ -61,7 +61,7 @@ def format_opt(opt, value):
 
 def _kwargs_to_command_line(kwargs):
     return {
-        ('--{}'.format(k.replace('_', '-'))
+        (f'--{k.replace("_", "-")}'
          if len(k) > 1 else f'-{k}'): f'{v}'
         for k, v in kwargs.items()
     }
@@ -528,10 +528,7 @@ class Cluster(UserList):
                 maybe_call(on_down, node)
 
     def __repr__(self):
-        return '<{name}({0}): {1}>'.format(
-            len(self), saferepr([n.name for n in self]),
-            name=type(self).__name__,
-        )
+        return f'<{type(self).__name__}({len(self)}): {saferepr([n.name for n in self])}>'
 
     @property
     def data(self):

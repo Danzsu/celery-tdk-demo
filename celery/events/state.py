@@ -236,7 +236,7 @@ class Worker:
 
     @property
     def id(self):
-        return '{0.hostname}.{0.pid}'.format(self)
+        return f'{self.hostname}.{self.pid}'
 
 
 @with_unique_field('uuid')

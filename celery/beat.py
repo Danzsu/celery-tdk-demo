@@ -450,8 +450,7 @@ class Scheduler:
                                       **options)
         except Exception as exc:  # pylint: disable=broad-except
             reraise(SchedulingError, SchedulingError(
-                "Couldn't apply scheduled task {0.name}: {exc}".format(
-                    entry, exc=exc)), sys.exc_info()[2])
+                f"Couldn't apply scheduled task {entry.name}: {exc}"), sys.exc_info()[2])
         finally:
             self._tasks_since_sync += 1
             if self.should_sync():

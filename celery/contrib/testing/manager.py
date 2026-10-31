@@ -123,9 +123,8 @@ class ManagerMixin:
             except (socket.timeout, TimeoutError) as exc:
                 waiting_for = self.missing_results(r)
                 self.remark(
-                    'Still waiting for {}/{}: [{}]: {!r}'.format(
-                        len(r) - len(received), len(r),
-                        truncate(', '.join(waiting_for)), exc), '!',
+                    f"Still waiting for {len(r) - len(received)}/{len(r)}: "
+                    f"[{truncate(', '.join(waiting_for))}]: {exc!r}", '!',
                 )
             except self.connerrors as exc:
                 self.remark(f'join: connection lost: {exc!r}', '!')

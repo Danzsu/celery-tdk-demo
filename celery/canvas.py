@@ -2718,10 +2718,8 @@ class _chord(Signature):
             if isinstance(self.body, _chain):
                 return remove_repeating_from_task(
                     self.body.tasks[0]['task'],
-                    '%({} | {!r})'.format(
-                        self.body.tasks[0].reprcall(self.tasks),
-                        chain(self.body.tasks[1:], app=self._app),
-                    ),
+                    f'%({self.body.tasks[0].reprcall(self.tasks)} | '
+                    f'{chain(self.body.tasks[1:], app=self._app)!r})',
                 )
             return '%' + remove_repeating_from_task(
                 self.body['task'], self.body.reprcall(self.tasks))

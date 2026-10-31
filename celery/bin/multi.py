@@ -396,15 +396,14 @@ class MultiTool(TermLogger):
         self.note(self.colored.blue('> Stopping nodes...'))
 
     def on_send_signal(self, node, sig):
-        self.note('\t> {0.name}: {1} -> {0.pid}'.format(node, sig))
+        self.note(f'\t> {node.name}: {sig} -> {node.pid}')
 
     def on_still_waiting_for(self, nodes):
         num_left = len(nodes)
         if num_left:
             self.note(self.colored.blue(
-                '> Waiting for {} {} -> {}...'.format(
-                    num_left, pluralize(num_left, 'node'),
-                    ', '.join(str(node.pid) for node in nodes)),
+                f"> Waiting for {num_left} {pluralize(num_left, 'node')} -> "
+                f"{', '.join(str(node.pid) for node in nodes)}...",
             ), newline=False)
 
     def on_still_waiting_progress(self, nodes):
@@ -415,8 +414,7 @@ class MultiTool(TermLogger):
 
     def on_node_signal_dead(self, node):
         self.note(
-            'Could not signal {0.name} ({0.pid}): No such process'.format(
-                node))
+            f'Could not signal {node.name} ({node.pid}): No such process')
 
     def on_node_start(self, node):
         self.note(f'\t> {node.name}: ', newline=False)
@@ -435,8 +433,7 @@ class MultiTool(TermLogger):
         self.note(retval and self.FAILED or self.OK)
 
     def on_node_signal(self, node, sig):
-        self.note('Sending {sig} to node {0.name} ({0.pid})'.format(
-            node, sig=sig))
+        self.note(f'Sending {sig} to node {node.name} ({node.pid})')
 
     def on_child_spawn(self, node, argstr, env):
         self.info(f'  {argstr}')

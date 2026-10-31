@@ -48,10 +48,9 @@ class StepFormatter(GraphFormatter):
     }
 
     def label(self, step):
-        return step and '{}{}'.format(
-            self._get_prefix(step),
-            bytes_to_str(
-                (step.label or _label(step)).encode('utf-8', 'ignore')),
+        return step and (
+            f"{self._get_prefix(step)}"
+            f"{bytes_to_str((step.label or _label(step)).encode('utf-8', 'ignore'))}"
         )
 
     def _get_prefix(self, step):
@@ -282,7 +281,7 @@ class StepType(type):
         return cls.name
 
     def __repr__(cls):
-        return 'step:{0.name}{{{0.requires!r}}}'.format(cls)
+        return f'step:{cls.name}{{{cls.requires!r}}}'
 
 
 class Step(metaclass=StepType):
