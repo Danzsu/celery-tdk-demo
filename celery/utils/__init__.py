@@ -3,8 +3,9 @@
 Don't import from here directly anymore, as these are only
 here for backwards compatibility.
 """
-from kombu.utils.objects import cached_property
 from kombu.utils.uuid import uuid
+
+from celery.utils.objects import cached_property
 
 from .functional import chunks, memoize, noop
 from .imports import gen_task_name, import_from_cwd, instantiate

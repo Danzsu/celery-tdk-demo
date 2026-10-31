@@ -19,7 +19,6 @@ from operator import itemgetter
 from types import GeneratorType
 
 from kombu.utils.functional import fxrange, reprcall
-from kombu.utils.objects import cached_property
 from kombu.utils.uuid import uuid
 from vine import barrier
 
@@ -32,7 +31,7 @@ from celery.utils.collections import ChainMap
 from celery.utils.functional import _regen
 from celery.utils.functional import chunks as _chunks
 from celery.utils.functional import is_list, maybe_list, regen, seq_concat_item, seq_concat_seq
-from celery.utils.objects import getitem_property
+from celery.utils.objects import cached_property, getitem_property
 from celery.utils.text import remove_repeating_from_task, truncate
 
 __all__ = (

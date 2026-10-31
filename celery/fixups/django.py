@@ -9,12 +9,12 @@ from typing import IO, TYPE_CHECKING, Any, List, Optional, cast
 from uuid import uuid4
 
 from kombu.utils.imports import symbol_by_name
-from kombu.utils.objects import cached_property
 
 from celery import _state, signals
 from celery.exceptions import FixupWarning, ImproperlyConfigured
 from celery.local import Proxy
 from celery.utils.log import get_logger
+from celery.utils.objects import cached_property
 from celery.worker import WorkController
 
 if TYPE_CHECKING:

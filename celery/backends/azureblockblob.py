@@ -1,11 +1,11 @@
 """The Azure Storage Block Blob backend for Celery."""
 from kombu.transport.azurestoragequeues import Transport as AzureStorageQueuesTransport
-from kombu.utils import cached_property
 from kombu.utils.encoding import bytes_to_str
 
 from celery.app.utils import _redact_azure_connection_string
 from celery.exceptions import ImproperlyConfigured
 from celery.utils.log import get_logger
+from celery.utils.objects import cached_property
 
 from .base import KeyValueStoreBackend
 

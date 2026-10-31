@@ -2,11 +2,11 @@
 from datetime import datetime, timedelta, timezone
 
 from kombu.exceptions import EncodeError
-from kombu.utils.objects import cached_property
 from kombu.utils.url import maybe_sanitize_url, urlparse
 
 from celery import states
 from celery.exceptions import ImproperlyConfigured
+from celery.utils.objects import cached_property
 from celery.utils.time import add_seconds_to_datetime
 
 from .base import BaseBackend

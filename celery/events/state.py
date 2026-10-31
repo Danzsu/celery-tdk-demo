@@ -26,11 +26,11 @@ from typing import Mapping, Optional  # noqa
 from weakref import WeakSet, ref
 
 from kombu.clocks import timetuple
-from kombu.utils.objects import cached_property
 
 from celery import states
 from celery.utils.functional import LRUCache, memoize, pass1
 from celery.utils.log import get_logger
+from celery.utils.objects import cached_property
 
 __all__ = ('Worker', 'Task', 'State', 'heartbeat_expires')
 

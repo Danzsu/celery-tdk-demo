@@ -22,7 +22,6 @@ from kombu.common import oid_from
 from kombu.exceptions import LimitExceeded
 from kombu.transport.native_delayed_delivery import calculate_routing_key
 from kombu.utils.compat import register_after_fork
-from kombu.utils.objects import cached_property
 from kombu.utils.uuid import uuid
 from vine import starpromise
 
@@ -38,7 +37,7 @@ from celery.utils.dispatch import Signal
 from celery.utils.functional import first, head_from_fun, maybe_list
 from celery.utils.imports import gen_task_name, instantiate, qualname, symbol_by_name
 from celery.utils.log import get_logger
-from celery.utils.objects import FallbackContext, mro_lookup
+from celery.utils.objects import FallbackContext, cached_property, mro_lookup
 from celery.utils.time import subtract_datetimes, timezone, to_utc
 
 from ..utils.annotations import annotation_is_class, annotation_issubclass, get_optional_arg

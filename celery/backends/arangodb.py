@@ -4,10 +4,10 @@
 
 from datetime import timedelta
 
-from kombu.utils.objects import cached_property
 from kombu.utils.url import _parse_url
 
 from celery.exceptions import ImproperlyConfigured
+from celery.utils.objects import cached_property
 
 from .base import KeyValueStoreBackend
 

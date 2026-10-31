@@ -4,8 +4,10 @@ from contextlib import contextmanager
 from unittest.mock import MagicMock, Mock
 
 import pytest
+from kombu.utils.objects import cached_property as kombu_cached_property
 
-from celery.utils.objects import Bunch, FallbackContext
+from celery.utils import objects
+from celery.utils.objects import Bunch, FallbackContext, cached_property
 
 
 class test_Bunch:
@@ -14,6 +16,28 @@ class test_Bunch:
         x = Bunch(foo='foo', bar=2)
         assert x.foo == 'foo'
         assert x.bar == 2
+
+
+class test_cached_property:
+
+    def test_reexports_kombu_implementation(self):
+        assert cached_property is kombu_cached_property
+        assert 'cached_property' in objects.__all__
+
+    def test_value_is_computed_once(self):
+        calls = []
+
+        class Thing:
+
+            @cached_property
+            def value(self):
+                calls.append(self)
+                return 42
+
+        thing = Thing()
+        assert thing.value == 42
+        assert thing.value == 42
+        assert calls == [thing]
 
 
 class test_FallbackContext:
