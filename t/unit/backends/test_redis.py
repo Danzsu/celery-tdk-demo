@@ -1419,6 +1419,12 @@ class test_RedisBackend(basetest_RedisBackend):
         assert self.app.conf.result_compression == 'gzip'
         assert self.Backend(app=self.app).compression == 'gzip'
 
+    def test_decode_responses_warning_points_at_the_caller(self):
+        self.app.conf.result_compression = 'gzip'
+        with pytest.warns(UserWarning, match='decode_responses enabled') as record:
+            self.Backend(app=self.app, url='redis://localhost/0?decode_responses=true')
+        assert record[0].filename == __file__
+
     def test_url_with_credential_provider(self):
         self.app.conf.redis_socket_timeout = 30.0
         self.app.conf.redis_socket_connect_timeout = 100.0

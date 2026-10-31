@@ -2057,6 +2057,13 @@ class test_result_compression:
         assert b.compression is None
         assert b.encode({'foo': 'bar'}) == '{"foo": "bar"}'
 
+    def test_ignored_warning_points_at_the_caller(self):
+        self.app.conf.result_compression = 'gzip'
+        with pytest.warns(UserWarning,
+                          match='cannot store compressed payloads') as record:
+            DictBackend(app=self.app)
+        assert record[0].filename == __file__
+
     def test_unknown_compression_method_is_rejected(self):
         with pytest.raises(ImproperlyConfigured,
                            match='Unknown compression method'):
@@ -2461,6 +2468,13 @@ class test_failure_expires_support:
         with pytest.warns(UserWarning,
                           match='does not support result_failure_expires'):
             KVBackend(app=self.app)
+
+    def test_warning_points_at_the_caller(self):
+        self.app.conf.result_failure_expires = 600
+        with pytest.warns(UserWarning,
+                          match='does not support result_failure_expires') as record:
+            DictBackend(app=self.app)
+        assert record[0].filename == __file__
 
     def test_no_warning_when_unset(self, recwarn):
         KVBackend(app=self.app)

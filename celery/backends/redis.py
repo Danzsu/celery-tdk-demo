@@ -520,7 +520,7 @@ class RedisBackend(BaseKeyValueStoreBackend, AsyncBackendMixin):
             self.connparams = self._params_from_url(url, self.connparams)
 
         if self.compression and self.connparams.get('decode_responses'):
-            warnings.warn(W_REDIS_COMPRESSION_DISABLED, UserWarning)
+            warnings.warn(W_REDIS_COMPRESSION_DISABLED, UserWarning, stacklevel=2)
             self.compression = None
 
         # If we've received SSL parameters via query string or the
