@@ -9,8 +9,8 @@ from celery import group, signals, states, uuid
 from celery.app.task import Context
 from celery.app.trace import (TraceInfo, build_tracer, fast_trace_task, get_log_policy, get_task_name,
                               log_policy_expected, log_policy_ignore, log_policy_internal, log_policy_reject,
-                              log_policy_unexpected, reset_worker_optimizations, setup_worker_optimizations,
-                              trace_task, trace_task_ret, traceback_clear)
+                              log_policy_unexpected, report_internal_error, reset_worker_optimizations,
+                              setup_worker_optimizations, trace_task, trace_task_ret, traceback_clear)
 from celery.backends.base import BaseDictBackend
 from celery.backends.cache import CacheBackend
 from celery.exceptions import BackendGetMetaError, Ignore, Reject, Retry
@@ -575,6 +575,16 @@ class test_trace(TraceCase):
         assert report_internal_error.call_count
         assert send.call_count
         assert xtask.__trace__ is tracer
+
+    def test_outside_body_warning_points_at_the_caller(self):
+        task = Mock()
+        task.backend.prepare_exception.side_effect = lambda exc, _: exc
+        try:
+            raise KeyError('foo')
+        except KeyError as exc:
+            with pytest.warns(RuntimeWarning, match='Exception raised outside body') as record:
+                report_internal_error(task, exc)
+        assert record[0].filename == __file__
 
     def test_backend_error_should_report_failure(self):
         """check internal error is reported as failure.

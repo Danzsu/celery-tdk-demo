@@ -825,7 +825,7 @@ def report_internal_error(task, exc):
         exc_info = ExceptionInfo((_type, _value, _tb), internal=True)
         warn(RuntimeWarning(
             'Exception raised outside body: {!r}:\n{}'.format(
-                exc, exc_info.traceback)))
+                exc, exc_info.traceback)), stacklevel=2)
         return exc_info
     finally:
         del _tb

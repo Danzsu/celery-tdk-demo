@@ -243,6 +243,7 @@ class Backend:
             warnings.warn(
                 W_FAILURE_EXPIRES_UNSUPPORTED.format(type(self).__name__),
                 UserWarning,
+                stacklevel=2,
             )
 
         self.always_retry = conf.get('result_backend_always_retry', False)
@@ -700,9 +701,11 @@ class Backend:
         if not compression:
             return None
         if not self.supports_result_compression:
+            # stacklevel=3 blames the caller of __init__, which calls this method.
             warnings.warn(
                 W_COMPRESSION_UNSUPPORTED.format(type(self).__name__),
                 UserWarning,
+                stacklevel=3,
             )
             return None
         try:
