@@ -44,8 +44,7 @@ def workers(ctx):
     generic = 'generic' in args
 
     def generic_label(node):
-        return '{} ({}://)'.format(type(node).__name__,
-                                   node._label.split('://')[0])
+        return f"{type(node).__name__} ({node._label.split('://')[0]}://)"
 
     class Node:
         force_label = None
@@ -145,8 +144,7 @@ def workers(ctx):
                  for i, obj in enumerate(l)]
         if abbr:
             l = l[0:max - 1] + [l[size - 1]]
-            l[max - 2] = '{}⎨…{}⎬'.format(
-                name[0], subscript(size - (max - 1)))
+            l[max - 2] = f'{name[0]}⎨…{subscript(size - (max - 1))}⎬'
         return l
 
     app = ctx.obj.app

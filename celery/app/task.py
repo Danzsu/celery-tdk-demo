@@ -58,7 +58,7 @@ TaskType = type
 
 def _strflags(flags, default=''):
     if flags:
-        return ' ({})'.format(', '.join(flags))
+        return f" ({', '.join(flags)})"
     return default
 
 
@@ -912,9 +912,8 @@ class Task:
                 # the exc' argument provided (raise exc from orig)
                 raise_with_context(exc)
             raise self.MaxRetriesExceededError(
-                "Can't retry {}[{}] args:{} kwargs:{}".format(
-                    self.name, request.id, S.args, S.kwargs
-                ), task_args=S.args, task_kwargs=S.kwargs
+                f"Can't retry {self.name}[{request.id}] args:{S.args} kwargs:{S.kwargs}",
+                task_args=S.args, task_kwargs=S.kwargs
             )
 
         ret = Retry(exc=exc, when=eta or countdown, is_eager=is_eager, sig=S)

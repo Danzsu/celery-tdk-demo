@@ -416,10 +416,7 @@ class WorkController:
 
     def __repr__(self):
         """``repr(worker)``."""
-        return '<Worker: {self.hostname} ({state})>'.format(
-            self=self,
-            state=self.blueprint.human_state() if self.blueprint else 'INIT',
-        )
+        return f"<Worker: {self.hostname} ({self.blueprint.human_state() if self.blueprint else 'INIT'})>"
 
     def __str__(self):
         """``str(worker) == worker.hostname``."""

@@ -49,7 +49,7 @@ class test_TaskRegistry:
         self.assert_register_unregister_cls(r, self.mytask)
         self.assert_register_unregister_cls(r, self.myperiodic)
 
-        with pytest.raises(InvalidTaskError):
+        with pytest.raises(InvalidTaskError, match="must specify .name attribute"):
             r.register(self.missing_name_task)
 
         r.register(self.myperiodic)

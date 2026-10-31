@@ -300,9 +300,8 @@ def remaining(
     ret = end_date_utc - now_utc
     if C_REMDEBUG:  # pragma: no cover
         print(
-            'rem: NOW:{!r} NOW_UTC:{!r} START:{!r} ENDS_IN:{!r} '
-            'END_DATE:{} END_DATE_UTC:{!r} REM:{}'.format(
-                now, now_utc, start, ends_in, end_date, end_date_utc, ret)
+            f'rem: NOW:{now!r} NOW_UTC:{now_utc!r} START:{start!r} ENDS_IN:{ends_in!r} '
+            f'END_DATE:{end_date} END_DATE_UTC:{end_date_utc!r} REM:{ret}'
         )
     return ret
 
@@ -364,11 +363,9 @@ def humanize_seconds(
     for unit, divider, formatter in TIME_UNITS:
         if secs >= divider:
             w = secs / float(divider)
-            return '{}{}{} {}'.format(prefix, sep, formatter(w),
-                                      pluralize(w, unit))
+            return f'{prefix}{sep}{formatter(w)} {pluralize(w, unit)}'
     if microseconds and secs > 0.0:
-        return '{prefix}{sep}{0:.2f} seconds'.format(
-            secs, sep=sep, prefix=prefix)
+        return f'{prefix}{sep}{secs:.2f} seconds'
     return now
 
 

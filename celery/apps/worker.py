@@ -248,7 +248,7 @@ class Worker(WorkController):
     def startup_info(self, artlines=True):
         app = self.app
         concurrency = str(self.concurrency)
-        appr = '{}:{:#x}'.format(app.main or '__main__', id(app))
+        appr = f'{app.main or "__main__"}:{id(app):#x}'
         if not isinstance(app.loader, AppLoader):
             loader = qualname(app.loader)
             if loader.startswith('celery.loaders'):  # pragma: no cover
@@ -574,6 +574,6 @@ def install_HUP_not_supported_handler(worker, sig='SIGHUP'):
 
     def warn_on_HUP_handler(signum, frame):
         with in_sighandler():
-            safe_say('{sig} not supported: Restarting with {sig} is '
-                     'unstable on this platform!'.format(sig=sig))
+            safe_say(f'{sig} not supported: Restarting with {sig} is '
+                     'unstable on this platform!')
     platforms.signals[sig] = warn_on_HUP_handler

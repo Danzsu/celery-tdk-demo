@@ -711,8 +711,7 @@ class Celery:
             raise TypeError('argument 1 to @task() must be a callable')
         if args:
             raise TypeError(
-                '@task() takes exactly 1 argument ({} given)'.format(
-                    sum([len(args), len(opts)])))
+                f'@task() takes exactly 1 argument ({sum([len(args), len(opts)])} given)')
         return inner_create_task_cls(**opts)
 
     def type_checker(self, fun, bound=False):

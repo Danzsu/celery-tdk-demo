@@ -274,9 +274,7 @@ class DynamoDBBackend(KeyValueStoreBackend):
                 )
             )
             raise AttributeError(
-                'boto3 method(s) {methods} not found'.format(
-                    methods=','.join(missing_methods)
-                )
+                f"boto3 method(s) {','.join(missing_methods)} not found"
             )
 
     def _get_ttl_specification(self, ttl_attr_name):

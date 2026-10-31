@@ -888,7 +888,7 @@ class Request:
         }
 
     def humaninfo(self):
-        return '{0.name}[{0.id}]'.format(self)
+        return f'{self.name}[{self.id}]'
 
     def __str__(self):
         """``str(self)``."""
@@ -900,10 +900,7 @@ class Request:
 
     def __repr__(self):
         """``repr(self)``."""
-        return '<{}: {} {} {}>'.format(
-            type(self).__name__, self.humaninfo(),
-            self._argsrepr, self._kwargsrepr,
-        )
+        return f'<{type(self).__name__}: {self.humaninfo()} {self._argsrepr} {self._kwargsrepr}>'
 
     @cached_property
     def _payload(self):

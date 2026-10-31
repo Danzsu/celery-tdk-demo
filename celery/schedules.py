@@ -863,9 +863,7 @@ class solar(BaseSchedule):
         return self.__class__, (self.event, self.lat, self.lon)
 
     def __repr__(self) -> str:
-        return '<solar: {} at latitude {}, longitude: {}>'.format(
-            self.event, self.lat, self.lon,
-        )
+        return f'<solar: {self.event} at latitude {self.lat}, longitude: {self.lon}>'
 
     def _next_event(self, start: Any) -> Any:
         """Return the first occurrence of the event after ``start``.

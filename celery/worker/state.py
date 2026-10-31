@@ -252,10 +252,8 @@ if C_BENCH:  # pragma: no cover
         @atexit.register
         def on_shutdown():
             if bench_first is not None and bench_last is not None:
-                print('- Time spent in benchmark: {!r}'.format(
-                    bench_last - bench_first))
-                print('- Avg: {}'.format(
-                    sum(bench_sample) / len(bench_sample)))
+                print(f'- Time spent in benchmark: {bench_last - bench_first!r}')
+                print(f'- Avg: {sum(bench_sample) / len(bench_sample)}')
                 memdump()
 
     def task_reserved(request):
@@ -279,8 +277,8 @@ if C_BENCH:  # pragma: no cover
         if not all_count % bench_every:
             now = monotonic()
             diff = now - bench_start
-            print('- Time spent processing {} tasks (since first '
-                  'task received): ~{:.4f}s\n'.format(bench_every, diff))
+            print(f'- Time spent processing {bench_every} tasks (since first '
+                  f'task received): ~{diff:.4f}s\n')
             sys.stdout.flush()
             bench_start = bench_last = now
             bench_sample.append(diff)

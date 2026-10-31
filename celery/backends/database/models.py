@@ -57,7 +57,7 @@ class Task(ResultModelBase):
         }
 
     def __repr__(self):
-        return '<Task {0.task_id} state: {0.status}>'.format(self)
+        return f'<Task {self.task_id} state: {self.status}>'
 
     @classmethod
     def configure(cls, schema=None, name=None):

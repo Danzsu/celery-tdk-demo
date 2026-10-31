@@ -25,8 +25,7 @@ class TaskRegistry(dict):
         """
         if task.name is None:
             raise InvalidTaskError(
-                'Task class {!r} must specify .name attribute'.format(
-                    type(task).__name__))
+                f'Task class {type(task).__name__!r} must specify .name attribute')
         task = inspect.isclass(task) and task() or task
         add_autoretry_behaviour(task)
         self[task.name] = task

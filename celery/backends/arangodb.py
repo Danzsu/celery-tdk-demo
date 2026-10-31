@@ -92,9 +92,7 @@ class ArangoDbBackend(KeyValueStoreBackend):
             collection or config.get('collection', self.collection)
         self.username = username or config.get('username', self.username)
         self.password = password or config.get('password', self.password)
-        self.arangodb_url = "{http_protocol}://{host}:{port}".format(
-            http_protocol=self.http_protocol, host=self.host, port=self.port
-        )
+        self.arangodb_url = f"{self.http_protocol}://{self.host}:{self.port}"
         self._connection = None
 
     @property

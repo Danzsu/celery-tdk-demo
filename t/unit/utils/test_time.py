@@ -115,6 +115,10 @@ def test_humanize_seconds__prefix():
     assert humanize_seconds(4, prefix='about ') == 'about 4.00 seconds'
 
 
+def test_humanize_seconds__microseconds():
+    assert humanize_seconds(0.5, prefix='about ', microseconds=True) == 'about 0.50 seconds'
+
+
 def test_maybe_iso8601_datetime():
     now = datetime.now()
     assert maybe_iso8601(now) is now

@@ -33,8 +33,7 @@ def _consume_arguments(meta, method, args):
                 if meta.variadic:
                     break
                 raise click.UsageError(
-                    'Command {!r} takes arguments: {}'.format(
-                        method, meta.signature))
+                    f'Command {method!r} takes arguments: {meta.signature}')
             else:
                 yield name, typ(arg) if typ is not None else arg
     finally:
@@ -146,8 +145,7 @@ def status(ctx, timeout, destination, json, **kwargs):
         ctx.obj.echo(dumps(replies))
     nodecount = len(replies)
     if not kwargs.get('quiet', False):
-        ctx.obj.echo('\n{} {} online.'.format(
-            nodecount, text.pluralize(nodecount, 'node')))
+        ctx.obj.echo(f"\n{nodecount} {text.pluralize(nodecount, 'node')} online.")
 
 
 @click.command(cls=CeleryCommand,
@@ -204,8 +202,7 @@ def inspect(ctx, command, timeout, destination, json, **kwargs):
 
     nodecount = len(replies)
     if not ctx.obj.quiet:
-        ctx.obj.echo('\n{} {} online.'.format(
-            nodecount, text.pluralize(nodecount, 'node')))
+        ctx.obj.echo(f"\n{nodecount} {text.pluralize(nodecount, 'node')} online.")
 
 
 @click.command(cls=CeleryCommand,

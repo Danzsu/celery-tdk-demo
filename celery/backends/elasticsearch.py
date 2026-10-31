@@ -128,9 +128,7 @@ class ElasticsearchBackend(KeyValueStoreBackend):
     def _set_with_state(self, key, value, state):
         body = {
             'result': value,
-            '@timestamp': '{}Z'.format(
-                datetime.now(timezone.utc).isoformat()[:-9]
-            ),
+            '@timestamp': f'{datetime.now(timezone.utc).isoformat()[:-9]}Z',
         }
         try:
             self._index(

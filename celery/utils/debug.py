@@ -124,7 +124,7 @@ def hfloat(f, p=5):
         p (int): Floating point precision (default is 5).
     """
     i = int(f)
-    return i if i == f else '{0:.{p}}'.format(f, p=p)
+    return i if i == f else f'{f:.{p}}'
 
 
 def humanbytes(s):

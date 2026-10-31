@@ -355,8 +355,7 @@ class LocalManager:
             release_local(local)
 
     def __repr__(self):
-        return '<{} storages: {}>'.format(
-            self.__class__.__name__, len(self.locals))
+        return f'<{self.__class__.__name__} storages: {len(self.locals)}>'
 
 
 class _FastLocalStack(threading.local):

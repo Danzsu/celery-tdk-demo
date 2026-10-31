@@ -310,8 +310,7 @@ class ChainMap(MutableMapping):
 
     def __repr__(self):
         # type: () -> str
-        return '{0.__class__.__name__}({1})'.format(
-            self, ', '.join(map(repr, self.maps)))
+        return f'{self.__class__.__name__}({", ".join(map(repr, self.maps))})'
 
     @classmethod
     def fromkeys(cls, iterable, *args):
