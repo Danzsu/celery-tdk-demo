@@ -14,7 +14,7 @@ from celery import Celery
 from . import current_app
 from .exceptions import ImproperlyConfigured
 from .utils.collections import AttributeDict
-from .utils.time import (ffwd, humanize_seconds, localize, maybe_make_aware, maybe_timedelta, remaining,
+from .utils.time import (ensure_aware, ffwd, humanize_seconds, localize, maybe_timedelta, remaining,
                          subtract_datetimes, timezone, weekday, yearmonth)
 
 __all__ = (
@@ -98,7 +98,7 @@ class BaseSchedule:
 
     def maybe_make_aware(
             self, dt: datetime, naive_as_utc: bool = True) -> datetime:
-        return maybe_make_aware(dt, self.tz, naive_as_utc=naive_as_utc)
+        return ensure_aware(dt, self.tz, naive_as_utc=naive_as_utc)
 
     @property
     def app(self) -> Celery:

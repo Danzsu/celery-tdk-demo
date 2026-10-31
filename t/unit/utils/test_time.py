@@ -12,10 +12,11 @@ if sys.version_info >= (3, 9):
 else:
     from backports.zoneinfo import ZoneInfo
 
+from celery.exceptions import CDeprecationWarning
 from celery.utils import time as time_utils
 from celery.utils.iso8601 import parse_iso8601
-from celery.utils.time import (LocalTimezone, _is_imaginary, add_seconds_to_datetime, delta_resolution, ffwd,
-                               get_exponential_backoff_interval, humanize_seconds, localize, make_aware,
+from celery.utils.time import (LocalTimezone, _is_imaginary, add_seconds_to_datetime, delta_resolution, ensure_aware,
+                               ffwd, get_exponential_backoff_interval, humanize_seconds, localize, make_aware,
                                maybe_iso8601, maybe_make_aware, maybe_timedelta, rate, remaining, timezone,
                                utcoffset)
 
@@ -295,18 +296,24 @@ class test_make_aware:
         assert not _is_imaginary(dt, tz)
         datetime_exists_mock.assert_called_once_with(dt, tz)
 
-    def test_maybe_make_aware(self):
+    def test_ensure_aware(self):
         aware = datetime.now(_timezone.utc).replace(tzinfo=timezone.utc)
-        assert maybe_make_aware(aware)
+        assert ensure_aware(aware)
         naive = datetime.now()
-        assert maybe_make_aware(naive)
-        assert maybe_make_aware(naive).tzinfo is ZoneInfo("UTC")
+        assert ensure_aware(naive)
+        assert ensure_aware(naive).tzinfo is ZoneInfo("UTC")
 
         tz = ZoneInfo('US/Eastern')
         eastern = datetime.now(_timezone.utc).replace(tzinfo=tz)
-        assert maybe_make_aware(eastern).tzinfo is tz
+        assert ensure_aware(eastern).tzinfo is tz
         utcnow = datetime.now()
-        assert maybe_make_aware(utcnow, 'UTC').tzinfo is ZoneInfo("UTC")
+        assert ensure_aware(utcnow, 'UTC').tzinfo is ZoneInfo("UTC")
+
+    def test_maybe_make_aware_is_deprecated_alias_of_ensure_aware(self):
+        naive = datetime.now()
+        with pytest.warns(CDeprecationWarning, match='ensure_aware'):
+            result = maybe_make_aware(naive, 'UTC')
+        assert result == ensure_aware(naive, 'UTC')
 
 
 class test_localize:

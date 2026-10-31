@@ -7,6 +7,7 @@ import os
 import random
 import sys
 import time as _time
+import warnings
 from calendar import monthrange
 from datetime import date, datetime, timedelta
 from datetime import timezone as datetime_timezone
@@ -19,6 +20,8 @@ from dateutil.parser import isoparse
 from kombu.utils.functional import reprcall
 from kombu.utils.objects import cached_property
 from tzlocal import get_localzone
+
+from celery.exceptions import CDeprecationWarning
 
 from .functional import dictfilter
 from .text import pluralize
@@ -35,7 +38,7 @@ __all__ = (
     'delta_resolution', 'remaining', 'rate', 'weekday',
     'humanize_seconds', 'maybe_iso8601', 'is_naive',
     'add_seconds_to_datetime', 'subtract_datetimes',
-    'make_aware', 'localize', 'to_utc', 'maybe_make_aware',
+    'make_aware', 'localize', 'to_utc', 'ensure_aware', 'maybe_make_aware',
     'ffwd', 'utcoffset', 'adjust_timestamp',
     'get_exponential_backoff_interval',
 )
@@ -396,8 +399,8 @@ def add_seconds_to_datetime(dt: datetime, seconds: float) -> datetime:
 
 def subtract_datetimes(end: datetime, start: datetime) -> timedelta:
     """Return the elapsed time between two datetimes, treating naive datetimes as UTC."""
-    end_utc = maybe_make_aware(end).astimezone(datetime_timezone.utc)
-    start_utc = maybe_make_aware(start).astimezone(datetime_timezone.utc)
+    end_utc = ensure_aware(end).astimezone(datetime_timezone.utc)
+    start_utc = ensure_aware(start).astimezone(datetime_timezone.utc)
     return end_utc - start_utc
 
 
@@ -461,8 +464,8 @@ def to_utc(dt: datetime) -> datetime:
     return make_aware(dt, timezone.utc)
 
 
-def maybe_make_aware(dt: datetime, tz: tzinfo | None = None,
-                     naive_as_utc: bool = True) -> datetime:
+def ensure_aware(dt: datetime, tz: tzinfo | None = None,
+                 naive_as_utc: bool = True) -> datetime:
     """Convert dt to aware datetime, do nothing if dt is already aware."""
     if is_naive(dt):
         if naive_as_utc:
@@ -471,6 +474,16 @@ def maybe_make_aware(dt: datetime, tz: tzinfo | None = None,
             dt, timezone.utc if tz is None else timezone.tz_or_local(tz),
         )
     return dt
+
+
+def maybe_make_aware(dt: datetime, tz: tzinfo | None = None,
+                     naive_as_utc: bool = True) -> datetime:
+    """Deprecated alias of :func:`ensure_aware`."""
+    warnings.warn(
+        'celery.utils.time.maybe_make_aware is deprecated, use ensure_aware instead.',
+        CDeprecationWarning, stacklevel=2,
+    )
+    return ensure_aware(dt, tz, naive_as_utc)
 
 
 class ffwd:
