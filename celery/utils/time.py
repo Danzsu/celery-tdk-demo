@@ -17,8 +17,9 @@ from typing import Any, Callable
 from dateutil import tz as dateutil_tz
 from dateutil.parser import isoparse
 from kombu.utils.functional import reprcall
-from kombu.utils.objects import cached_property
 from tzlocal import get_localzone
+
+from celery.utils.objects import cached_property
 
 from .functional import dictfilter
 from .text import pluralize

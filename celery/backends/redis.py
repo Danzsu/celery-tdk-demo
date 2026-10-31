@@ -11,7 +11,6 @@ from urllib.parse import unquote
 
 from kombu.utils import symbol_by_name
 from kombu.utils.functional import retry_over_time
-from kombu.utils.objects import cached_property
 from kombu.utils.url import _parse_url, maybe_sanitize_url
 from redis import CredentialProvider
 
@@ -23,6 +22,7 @@ from celery.exceptions import BackendStoreError, ChordError, ImproperlyConfigure
 from celery.result import GroupResult, allow_join_result
 from celery.utils.functional import _regen, dictfilter
 from celery.utils.log import get_logger
+from celery.utils.objects import cached_property
 from celery.utils.time import humanize_seconds
 
 from .asynchronous import AsyncBackendMixin, BaseResultConsumer

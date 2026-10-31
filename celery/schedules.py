@@ -7,9 +7,8 @@ from collections import namedtuple
 from datetime import datetime, timedelta, tzinfo
 from typing import Any, Callable, Iterable, Mapping, Sequence, Union
 
-from kombu.utils.objects import cached_property
-
 from celery import Celery
+from celery.utils.objects import cached_property
 
 from . import current_app
 from .exceptions import ImproperlyConfigured

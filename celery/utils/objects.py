@@ -2,7 +2,11 @@
 import types
 from functools import reduce
 
-__all__ = ('Bunch', 'FallbackContext', 'getitem_property', 'mro_lookup')
+from kombu.utils.objects import cached_property
+
+__all__ = (
+    'Bunch', 'FallbackContext', 'cached_property', 'getitem_property', 'mro_lookup',
+)
 
 
 class Bunch:
