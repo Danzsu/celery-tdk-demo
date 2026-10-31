@@ -3,6 +3,8 @@ import sys
 import threading
 import warnings
 import weakref
+from collections.abc import Hashable
+from typing import Any
 from weakref import WeakMethod
 
 from kombu.utils.functional import retry_over_time
@@ -109,7 +111,7 @@ class Signal:  # pragma: no cover
             weak=weak, dispatch_uid=dispatch_uid,
         )
 
-    def connect(self, *args, **kwargs):
+    def connect(self, *args: Any, **kwargs: Any) -> Any:
         """Connect receiver to sender for signal.
 
         Arguments:
@@ -217,8 +219,8 @@ class Signal:  # pragma: no cover
 
         return receiver
 
-    def disconnect(self, receiver=None, sender=None, weak=None,
-                   dispatch_uid=None):
+    def disconnect(self, receiver: Any = None, sender: Any = None, weak: bool | None = None,
+                   dispatch_uid: Hashable | None = None) -> bool:
         """Disconnect receiver from sender for signal.
 
         If weak references are used, disconnect needn't be called.
@@ -254,10 +256,10 @@ class Signal:  # pragma: no cover
             self.sender_receivers_cache.clear()
         return disconnected
 
-    def has_listeners(self, sender=None):
+    def has_listeners(self, sender: Any = None) -> bool:
         return bool(self._live_receivers(sender))
 
-    def send(self, sender, **named):
+    def send(self, sender: Any, **named: Any) -> list[tuple[Any, Any]]:
         """Send signal from sender to all connected receivers.
 
         If any receiver raises an error, the exception is returned as the

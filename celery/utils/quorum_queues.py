@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 
-def detect_quorum_queues(app, driver_type: str) -> tuple[bool, str]:
+if TYPE_CHECKING:
+    from celery import Celery
+
+
+def detect_quorum_queues(app: Celery, driver_type: str) -> tuple[bool, str]:
     """Detect if any of the queues are quorum queues.
 
     Returns:

@@ -2,10 +2,13 @@
 import os
 import sys
 import warnings
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from functools import lru_cache
 from importlib import import_module, reload
 from importlib.metadata import entry_points
+from types import ModuleType
+from typing import Any
 
 from kombu.utils.imports import symbol_by_name
 
@@ -26,7 +29,7 @@ class NotAPackage(Exception):
     """Raised when importing a package, but it's not a package."""
 
 
-def qualname(obj):
+def qualname(obj: Any) -> str:
     """Return object name."""
     if not hasattr(obj, '__name__') and hasattr(obj, '__class__'):
         obj = obj.__class__
@@ -36,7 +39,7 @@ def qualname(obj):
     return q
 
 
-def instantiate(name, *args, **kwargs):
+def instantiate(name: str, *args: Any, **kwargs: Any) -> Any:
     """Instantiate class by name.
 
     See Also:
@@ -46,7 +49,7 @@ def instantiate(name, *args, **kwargs):
 
 
 @contextmanager
-def cwd_in_path():
+def cwd_in_path() -> Iterator[str | None]:
     """Context adding the current working directory to sys.path."""
     try:
         cwd = os.getcwd()
@@ -67,7 +70,7 @@ def cwd_in_path():
                 pass
 
 
-def find_module(module, path=None, imp=None):
+def find_module(module: str, path: Any = None, imp: Callable[[str], Any] | None = None) -> Any:
     """Version of :func:`imp.find_module` supporting dots."""
     if imp is None:
         imp = import_module
@@ -94,7 +97,11 @@ def find_module(module, path=None, imp=None):
             raise
 
 
-def import_from_cwd(module, imp=None, package=None):
+def import_from_cwd(
+    module: str,
+    imp: Callable[..., Any] | None = None,
+    package: str | None = None,
+) -> Any:
     """Import module, temporarily including modules in the current directory.
 
     Modules located in the current directory has
@@ -106,7 +113,7 @@ def import_from_cwd(module, imp=None, package=None):
         return imp(module, package=package)
 
 
-def reload_from_cwd(module, reloader=None):
+def reload_from_cwd(module: ModuleType, reloader: Callable[[ModuleType], ModuleType] | None = None) -> ModuleType:
     """Reload module (ensuring that CWD is in sys.path)."""
     if reloader is None:
         reloader = reload
@@ -114,13 +121,13 @@ def reload_from_cwd(module, reloader=None):
         return reloader(module)
 
 
-def module_file(module):
+def module_file(module: ModuleType) -> str:
     """Return the correct original file name of a module."""
     name = module.__file__
     return name[:-1] if name.endswith('.pyc') else name
 
 
-def gen_task_name(app, name, module_name):
+def gen_task_name(app: Any, name: str, module_name: str | None) -> str:
     """Generate task name from name/module pair."""
     module_name = module_name or '__main__'
     try:
@@ -143,7 +150,7 @@ def gen_task_name(app, name, module_name):
 
 
 @lru_cache(maxsize=None)
-def load_extension_class_names(namespace):
+def load_extension_class_names(namespace: str) -> tuple[tuple[str, str], ...]:
     """Return the ``(name, class_name)`` pairs registered for the namespace.
 
     Scanning installed package metadata for entry points is expensive, and
@@ -163,7 +170,7 @@ def load_extension_class_names(namespace):
     return tuple((ep.name, ep.value) for ep in _entry_points)
 
 
-def load_extension_classes(namespace):
+def load_extension_classes(namespace: str) -> Iterator[tuple[str, Any]]:
     for name, class_name in load_extension_class_names(namespace):
         try:
             cls = symbol_by_name(class_name)

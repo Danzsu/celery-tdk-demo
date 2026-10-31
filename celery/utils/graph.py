@@ -1,6 +1,10 @@
 """Dependency graph implementation."""
+from __future__ import annotations
+
 from collections import Counter
+from collections.abc import Iterable, Iterator, Mapping
 from textwrap import dedent
+from typing import IO, Any
 
 from kombu.utils.encoding import bytes_to_str, safe_str
 
@@ -45,22 +49,22 @@ class DependencyGraph:
         if it is not None:
             self.update(it)
 
-    def add_arc(self, obj):
+    def add_arc(self, obj: Any) -> None:
         """Add an object to the graph."""
         self.adjacent.setdefault(obj, [])
 
-    def add_edge(self, A, B):
+    def add_edge(self, A: Any, B: Any) -> None:
         """Add an edge from object ``A`` to object ``B``.
 
         I.e. ``A`` depends on ``B``.
         """
         self[A].append(B)
 
-    def connect(self, graph):
+    def connect(self, graph: DependencyGraph) -> None:
         """Add nodes from another graph."""
         self.adjacent.update(graph.adjacent)
 
-    def topsort(self):
+    def topsort(self) -> list[Any]:
         """Sort the graph topologically.
 
         Returns:
@@ -82,7 +86,7 @@ class DependencyGraph:
                     graph.add_edge(node_c, successor_c)
         return [t[0] for t in graph._khan62()]
 
-    def valency_of(self, obj):
+    def valency_of(self, obj: Any) -> int:
         """Return the valency (degree) of a vertex in the graph."""
         try:
             l = [len(self[obj])]
@@ -92,7 +96,7 @@ class DependencyGraph:
             l.append(self.valency_of(node))
         return sum(l)
 
-    def update(self, it):
+    def update(self, it: Iterable[tuple[Any, Iterable[Any]]]) -> None:
         """Update graph with data from a list of ``(obj, deps)`` tuples."""
         tups = list(it)
         for obj, _ in tups:
@@ -101,7 +105,7 @@ class DependencyGraph:
             for dep in deps:
                 self.add_edge(obj, dep)
 
-    def edges(self):
+    def edges(self) -> Iterator[Any]:
         """Return generator that yields for all edges in the graph."""
         return (obj for obj, adj in self.items() if adj)
 
@@ -161,7 +165,7 @@ class DependencyGraph:
 
         return result
 
-    def to_dot(self, fh, formatter=None):
+    def to_dot(self, fh: IO[Any], formatter: GraphFormatter | None = None) -> None:
         """Convert the graph to DOT format.
 
         Arguments:
@@ -189,7 +193,7 @@ class DependencyGraph:
                 P(draw.edge(obj, req))
         P(draw.tail())
 
-    def format(self, obj):
+    def format(self, obj: Any) -> Any:
         return self.formatter(obj) if self.formatter else obj
 
     def __iter__(self):
@@ -211,7 +215,7 @@ class DependencyGraph:
     def __repr__(self):
         return '\n'.join(self.repr_node(N) for N in self)
 
-    def repr_node(self, obj, level=1, fmt='{0}({1})'):
+    def repr_node(self, obj: Any, level: int = 1, fmt: str = '{0}({1})') -> str:
         output = [fmt.format(obj, self.valency_of(obj))]
         if obj in self:
             for other in self[obj]:
@@ -258,52 +262,54 @@ class GraphFormatter:
         self.scheme = dict(self.scheme, **scheme)
         self.graph_scheme = dict(self.graph_scheme, root=self.label(self.root))
 
-    def attr(self, name, value):
+    def attr(self, name: str, value: Any) -> bytes:
         value = f'"{value}"'
         return self.FMT(self._attr, name=name, value=value)
 
-    def attrs(self, d, scheme=None):
+    def attrs(self, d: Mapping[str, Any], scheme: Mapping[str, Any] | None = None) -> str:
         d = dict(self.scheme, **dict(scheme, **d or {}) if scheme else d)
         return self._attrsep.join(
             safe_str(self.attr(k, v)) for k, v in d.items()
         )
 
-    def head(self, **attrs):
+    def head(self, **attrs: Any) -> bytes:
         return self.FMT(
             self._head, id=self.id, type=self.type,
             attrs=self.attrs(attrs, self.graph_scheme),
         )
 
-    def tail(self):
+    def tail(self) -> bytes:
         return self.FMT(self._tail)
 
-    def label(self, obj):
+    def label(self, obj: Any) -> Any:
         return obj
 
-    def node(self, obj, **attrs):
+    def node(self, obj: Any, **attrs: Any) -> bytes:
         return self.draw_node(obj, self.node_scheme, attrs)
 
-    def terminal_node(self, obj, **attrs):
+    def terminal_node(self, obj: Any, **attrs: Any) -> bytes:
         return self.draw_node(obj, self.term_scheme, attrs)
 
-    def edge(self, a, b, **attrs):
+    def edge(self, a: Any, b: Any, **attrs: Any) -> bytes:
         return self.draw_edge(a, b, **attrs)
 
-    def _enc(self, s):
+    def _enc(self, s: str) -> bytes:
         return s.encode('utf-8', 'ignore')
 
-    def FMT(self, fmt, *args, **kwargs):
+    def FMT(self, fmt: str, *args: Any, **kwargs: Any) -> bytes:
         return self._enc(fmt.format(
             *args, **dict(kwargs, IN=self.IN, INp=self.INp)
         ))
 
-    def draw_edge(self, a, b, scheme=None, attrs=None):
+    def draw_edge(self, a: Any, b: Any, scheme: Mapping[str, Any] | None = None,
+                  attrs: Mapping[str, Any] | None = None) -> bytes:
         return self.FMT(
             self._edge, self.label(a), self.label(b),
             dir=self.direction, attrs=self.attrs(attrs, self.edge_scheme),
         )
 
-    def draw_node(self, obj, scheme=None, attrs=None):
+    def draw_node(self, obj: Any, scheme: Mapping[str, Any] | None = None,
+                  attrs: Mapping[str, Any] | None = None) -> bytes:
         return self.FMT(
             self._node, self.label(obj), attrs=self.attrs(attrs, scheme),
         )

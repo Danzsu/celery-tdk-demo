@@ -3,6 +3,7 @@ import inspect
 import operator
 import sys
 from collections import UserList
+from collections.abc import Iterable, Iterator, Sequence
 from functools import partial
 from itertools import islice, tee, zip_longest
 from typing import Any, Callable
@@ -47,33 +48,33 @@ class mlazy(lazy):
     evaluated = False
     _value = None
 
-    def evaluate(self):
+    def evaluate(self) -> Any:
         if not self.evaluated:
             self._value = super().evaluate()
             self.evaluated = True
         return self._value
 
 
-def noop(*args, **kwargs):
+def noop(*args: Any, **kwargs: Any) -> None:
     """No operation.
 
     Takes any arguments/keyword arguments and does nothing.
     """
 
 
-def pass1(arg, *args, **kwargs):
+def pass1(arg: Any, *args: Any, **kwargs: Any) -> Any:
     """Return the first positional argument."""
     return arg
 
 
-def evaluate_promises(it):
+def evaluate_promises(it: Iterable[Any]) -> Iterator[Any]:
     for value in it:
         if isinstance(value, promise):
             value = value()
         yield value
 
 
-def first(predicate, it):
+def first(predicate: Callable[[Any], Any] | None, it: Iterable[Any]) -> Any:
     """Return the first element in ``it`` that ``predicate`` accepts.
 
     If ``predicate`` is None it will return the first item that's not
@@ -86,7 +87,7 @@ def first(predicate, it):
     )
 
 
-def firstmethod(method, on_call=None):
+def firstmethod(method: str, on_call: Callable[..., Any] | None = None) -> Callable[..., Any]:
     """Multiple dispatch.
 
     Return a function that with a list of instances,
@@ -112,7 +113,7 @@ def firstmethod(method, on_call=None):
     return _matcher
 
 
-def chunks(it, n):
+def chunks(it: Iterator[Any], n: int) -> Iterator[list[Any]]:
     """Split an iterator into chunks with `n` elements each.
 
     Warning:
@@ -137,7 +138,7 @@ def chunks(it, n):
         yield [item] + list(islice(it, n - 1))
 
 
-def padlist(container, size, default=None):
+def padlist(container: Sequence[Any], size: int, default: Any = None) -> list[Any]:
     """Pad list with default elements.
 
     Example:
@@ -153,7 +154,7 @@ def padlist(container, size, default=None):
     return list(container)[:size] + [default] * (size - len(container))
 
 
-def mattrgetter(*attrs):
+def mattrgetter(*attrs: str) -> Callable[[Any], dict[str, Any]]:
     """Get attributes, ignoring attribute errors.
 
     Like :func:`operator.itemgetter` but return :const:`None` on missing
@@ -162,13 +163,13 @@ def mattrgetter(*attrs):
     return lambda obj: {attr: getattr(obj, attr, None) for attr in attrs}
 
 
-def uniq(it):
+def uniq(it: Iterable[Any]) -> Iterator[Any]:
     """Return all unique elements in ``it``, preserving order."""
     seen = set()
     return (seen.add(obj) or obj for obj in it if obj not in seen)
 
 
-def lookahead(it):
+def lookahead(it: Iterable[Any]) -> Iterator[tuple[Any, Any]]:
     """Yield pairs of (current, next) items in `it`.
 
     `next` is None if `current` is the last item.
@@ -181,7 +182,7 @@ def lookahead(it):
     return zip_longest(a, b)
 
 
-def regen(it):
+def regen(it: Iterable[Any]) -> Sequence[Any]:
     """Convert iterator to an object that can be consumed multiple times.
 
     ``Regen`` takes any iterable, and if the object is an
@@ -207,7 +208,7 @@ class _regen(UserList, list):
     def __reduce__(self):
         return list, (self.data,)
 
-    def map(self, func):
+    def map(self, func: Callable[[Any], Any]) -> None:
         self.__consumed = [func(el) for el in self.__consumed]
         self.__it = map(func, self.__it)
 
@@ -311,7 +312,7 @@ class _regen(UserList, list):
             return True
 
     @property
-    def data(self):
+    def data(self) -> list[Any]:
         if not self.__done:
             self.__consumed.extend(self.__it)
             self.__done = True
@@ -441,12 +442,12 @@ def head_from_fun(fun: Callable[..., Any], bound: bool = False) -> str:
     return result
 
 
-def arity_greater(fun, n):
+def arity_greater(fun: Callable[..., Any], n: int) -> bool | str | None:
     argspec = inspect.getfullargspec(fun)
     return argspec.varargs or len(argspec.args) > n
 
 
-def fun_takes_argument(name, fun, position=None):
+def fun_takes_argument(name: str, fun: Callable[..., Any], position: int | None = None) -> bool | str | None:
     spec = inspect.getfullargspec(fun)
     return (
         spec.varkw or spec.varargs or
@@ -454,7 +455,7 @@ def fun_takes_argument(name, fun, position=None):
     )
 
 
-def fun_accepts_kwargs(fun):
+def fun_accepts_kwargs(fun: Callable[..., Any]) -> bool:
     """Return true if function accepts arbitrary keyword arguments."""
     # inspect.signature evaluates annotations in Python 3.14+ (PEP 649),
     # which raises NameError for types only imported under TYPE_CHECKING.
@@ -468,12 +469,12 @@ def fun_accepts_kwargs(fun):
     )
 
 
-def maybe(typ, val):
+def maybe(typ: Callable[[Any], Any], val: Any) -> Any:
     """Call typ on value if val is defined."""
     return typ(val) if val is not None else val
 
 
-def seq_concat_item(seq, item):
+def seq_concat_item(seq: Sequence[Any], item: Any) -> Sequence[Any]:
     """Return copy of sequence seq with item added.
 
     Returns:
@@ -483,7 +484,7 @@ def seq_concat_item(seq, item):
     return seq + (item,) if isinstance(seq, tuple) else seq + [item]
 
 
-def seq_concat_seq(a, b):
+def seq_concat_seq(a: Sequence[Any], b: Sequence[Any]) -> Sequence[Any]:
     """Concatenate two sequences: ``a + b``.
 
     Returns:
@@ -501,5 +502,5 @@ def seq_concat_seq(a, b):
     return a + b
 
 
-def is_numeric_value(value):
+def is_numeric_value(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool)

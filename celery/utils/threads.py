@@ -5,8 +5,10 @@ import sys
 import threading
 import traceback
 import types
+from collections.abc import Iterator
 from contextlib import contextmanager
 from threading import TIMEOUT_MAX as THREAD_TIMEOUT_MAX
+from typing import Any
 
 from celery.local import Proxy
 
@@ -34,7 +36,7 @@ USE_FAST_LOCALS = os.environ.get('USE_FAST_LOCALS')
 
 
 @contextmanager
-def default_socket_timeout(timeout):
+def default_socket_timeout(timeout: float | None) -> Iterator[None]:
     """Context temporarily setting the default socket timeout.
 
     Note:
@@ -73,7 +75,7 @@ def _open_broker_sockets(connection):
         yield sock
 
 
-def bound_open_broker_sockets(connection, timeout):
+def bound_open_broker_sockets(connection: Any, timeout: float | None) -> None:
     """Apply ``timeout`` to broker sockets that are already connected.
 
     :func:`socket.setdefaulttimeout` only affects sockets created
@@ -106,14 +108,14 @@ class bgThread(threading.Thread):
         self.daemon = True
         self.name = name or self.__class__.__name__
 
-    def body(self):
+    def body(self) -> None:
         raise NotImplementedError()
 
-    def on_crash(self, msg, *fmt, **kwargs):
+    def on_crash(self, msg: str, *fmt: Any, **kwargs: Any) -> None:
         print(msg.format(*fmt), file=sys.stderr)
         traceback.print_exc(None, sys.stderr)
 
-    def run(self):
+    def run(self) -> None:
         body = self.body
         shutdown_set = self.__is_shutdown.is_set
         try:
@@ -138,7 +140,7 @@ class bgThread(threading.Thread):
             # so gc collected built-in modules.
             pass
 
-    def stop(self):
+    def stop(self) -> None:
         """Graceful shutdown."""
         self.__is_shutdown.set()
         self.__is_stopped.wait()
@@ -146,7 +148,7 @@ class bgThread(threading.Thread):
             self.join(THREAD_TIMEOUT_MAX)
 
 
-def release_local(local):
+def release_local(local: Any) -> None:
     """Release the contents of the local for the current context.
 
     This makes it possible to use locals without a manager.
@@ -256,7 +258,7 @@ class _LocalStack:
             return rv
         return Proxy(_lookup)
 
-    def push(self, obj):
+    def push(self, obj: Any) -> list[Any]:
         """Push a new item to the stack."""
         rv = getattr(self._local, 'stack', None)
         if rv is None:
@@ -266,7 +268,7 @@ class _LocalStack:
         rv.append(obj)
         return rv
 
-    def pop(self):
+    def pop(self) -> Any:
         """Remove the topmost item from the stack.
 
         Note:
@@ -288,7 +290,7 @@ class _LocalStack:
         return len(stack) if stack else 0
 
     @property
-    def stack(self):
+    def stack(self) -> list[Any]:
         # get_current_worker_task uses this to find
         # the original task that was executed by the worker.
         stack = getattr(self._local, 'stack', None)
@@ -297,7 +299,7 @@ class _LocalStack:
         return []
 
     @property
-    def top(self):
+    def top(self) -> Any:
         """The topmost item on the stack.
 
         Note:
@@ -336,7 +338,7 @@ class LocalManager:
         else:
             self.ident_func = get_ident
 
-    def get_ident(self):
+    def get_ident(self) -> Any:
         """Return context identifier.
 
         This is the identifier the local objects use internally
@@ -346,7 +348,7 @@ class LocalManager:
         """
         return self.ident_func()
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Manually clean up the data in the locals for this context.
 
         Call this at the end of the request or use ``make_middleware()``.
@@ -368,7 +370,7 @@ class _FastLocalStack(threading.local):
         super().__init__()
 
     @property
-    def top(self):
+    def top(self) -> Any:
         try:
             return self.stack[-1]
         except (AttributeError, IndexError):

@@ -1,5 +1,6 @@
 """Object related utilities, including introspection, etc."""
 import types
+from collections.abc import Collection, Sequence
 from functools import reduce
 
 __all__ = ('Bunch', 'FallbackContext', 'getitem_property', 'mro_lookup')
@@ -12,7 +13,12 @@ class Bunch:
         self.__dict__.update(kwargs)
 
 
-def mro_lookup(cls, attr, stop=None, monkey_patched=None):
+def mro_lookup(
+    cls: type,
+    attr: str,
+    stop: Collection[type] | None = None,
+    monkey_patched: Sequence[str] | None = None,
+) -> type | None:
     """Return the first node by MRO order that defines an attribute.
 
     Arguments:

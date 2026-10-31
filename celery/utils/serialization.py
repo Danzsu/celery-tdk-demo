@@ -1,12 +1,16 @@
 """Utilities for safely pickling exceptions."""
+from __future__ import annotations
+
 import datetime
 import numbers
 import sys
 from base64 import b64decode as base64decode
 from base64 import b64encode as base64encode
+from collections.abc import Callable, Container, Iterable, Iterator, Mapping
 from functools import partial
 from inspect import getmro
 from itertools import takewhile
+from typing import Any, NoReturn
 
 from kombu.utils.encoding import bytes_to_str, safe_repr, str_to_bytes
 
@@ -30,13 +34,13 @@ STRTOBOOL_DEFAULT_TABLE = {'false': False, 'no': False, '0': False,
                            'on': True, 'off': False}
 
 
-def subclass_exception(name, parent, module):
+def subclass_exception(name: str, parent: type[BaseException], module: str) -> type[BaseException]:
     """Create new exception class."""
     return type(name, (parent,), {'__module__': module})
 
 
-def find_pickleable_exception(exc, loads=pickle.loads,
-                              dumps=pickle.dumps):
+def find_pickleable_exception(exc: BaseException, loads: Callable[..., Any] = pickle.loads,
+                              dumps: Callable[..., Any] = pickle.dumps) -> BaseException | None:
     """Find first pickleable exception base class.
 
     With an exception instance, iterate over its super classes (by MRO)
@@ -66,18 +70,18 @@ def find_pickleable_exception(exc, loads=pickle.loads,
             return superexc
 
 
-def itermro(cls, stop):
+def itermro(cls: type, stop: Container[type]) -> Iterator[type]:
     return takewhile(lambda sup: sup not in stop, getmro(cls))
 
 
-def create_exception_cls(name, module, parent=None):
+def create_exception_cls(name: str, module: str, parent: type[BaseException] | None = None) -> type[BaseException]:
     """Dynamically create an exception class."""
     if not parent:
         parent = Exception
     return subclass_exception(name, parent, module)
 
 
-def ensure_serializable(items, encoder):
+def ensure_serializable(items: Iterable[Any], encoder: Callable[[Any], Any]) -> tuple[Any, ...]:
     """Ensure items will serialize.
 
     For a given list of arbitrary objects, return the object
@@ -138,7 +142,7 @@ class UnpickleableExceptionWrapper(Exception):
         super().__init__(exc_module, exc_cls_name, safe_exc_args,
                          text)
 
-    def restore(self):
+    def restore(self) -> BaseException:
         return create_exception_cls(self.exc_cls_name,
                                     self.exc_module)(*self.exc_args)
 
@@ -146,7 +150,7 @@ class UnpickleableExceptionWrapper(Exception):
         return self.text
 
     @classmethod
-    def from_exception(cls, exc):
+    def from_exception(cls, exc: BaseException) -> UnpickleableExceptionWrapper:
         res = cls(
             exc.__class__.__module__,
             exc.__class__.__name__,
@@ -158,7 +162,7 @@ class UnpickleableExceptionWrapper(Exception):
         return res
 
 
-def get_pickleable_exception(exc):
+def get_pickleable_exception(exc: BaseException) -> BaseException:
     """Make sure exception is pickleable."""
     try:
         pickle.loads(pickle.dumps(exc))
@@ -172,7 +176,8 @@ def get_pickleable_exception(exc):
     return UnpickleableExceptionWrapper.from_exception(exc)
 
 
-def get_pickleable_etype(cls, loads=pickle.loads, dumps=pickle.dumps):
+def get_pickleable_etype(cls: type[BaseException], loads: Callable[..., Any] = pickle.loads,
+                         dumps: Callable[..., Any] = pickle.dumps) -> type[BaseException]:
     """Get pickleable exception type."""
     try:
         loads(dumps(cls))
@@ -182,22 +187,22 @@ def get_pickleable_etype(cls, loads=pickle.loads, dumps=pickle.dumps):
         return cls
 
 
-def get_pickled_exception(exc):
+def get_pickled_exception(exc: BaseException) -> BaseException:
     """Reverse of :meth:`get_pickleable_exception`."""
     if isinstance(exc, UnpickleableExceptionWrapper):
         return exc.restore()
     return exc
 
 
-def b64encode(s):
+def b64encode(s: str | bytes) -> str:
     return bytes_to_str(base64encode(str_to_bytes(s)))
 
 
-def b64decode(s):
+def b64decode(s: str | bytes) -> bytes:
     return base64decode(str_to_bytes(s))
 
 
-def strtobool(term, table=None):
+def strtobool(term: Any, table: Mapping[str, bool] | None = None) -> Any:
     """Convert common terms for true/false to bool.
 
     Examples (true/false/yes/no/on/off/1/0).
@@ -230,10 +235,10 @@ def _datetime_to_json(dt):
         return dt.isoformat()
 
 
-def jsonify(obj,
-            builtin_types=(numbers.Real, str), key=None,
-            keyfilter=None,
-            unknown_type_filter=None):
+def jsonify(obj: Any,
+            builtin_types: tuple[type, ...] = (numbers.Real, str), key: str | None = None,
+            keyfilter: Callable[[Any], Any] | None = None,
+            unknown_type_filter: Callable[[Any], Any] | None = None) -> Any:
     """Transform object making it suitable for json serialization."""
     from kombu.abstract import Object as KombuDictType
     _jsonify = partial(jsonify, builtin_types=builtin_types, key=key,
@@ -264,7 +269,7 @@ def jsonify(obj,
         return unknown_type_filter(obj)
 
 
-def raise_with_context(exc):
+def raise_with_context(exc: BaseException) -> NoReturn:
     exc_info = sys.exc_info()
     if not exc_info:
         raise exc

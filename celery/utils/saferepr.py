@@ -63,8 +63,7 @@ LIT_TUPLE_END = _literal(')', False, -1)
 LIT_TUPLE_END_SV = _literal(',)', False, -1)
 
 
-def saferepr(o, maxlen=None, maxlevels=3, seen=None):
-    # type: (Any, int, int, Set) -> str
+def saferepr(o: Any, maxlen: int | None = None, maxlevels: int = 3, seen: Set[Any] | None = None) -> str:
     """Safe version of :func:`repr`.
 
     Warning:

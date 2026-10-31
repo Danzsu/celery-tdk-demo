@@ -1,5 +1,8 @@
 """Deprecation utilities."""
+from __future__ import annotations
+
 import warnings
+from typing import Any
 
 from vine.utils import wraps
 
@@ -20,8 +23,8 @@ DEPRECATION_FMT = """
 """
 
 
-def warn(description=None, deprecation=None,
-         removal=None, alternative=None, stacklevel=2):
+def warn(description: str | None = None, deprecation: str | None = None,
+         removal: str | None = None, alternative: str | None = None, stacklevel: int = 2) -> None:
     """Warn of (pending) deprecation."""
     ctx = {'description': description,
            'deprecation': deprecation, 'removal': removal,
@@ -33,8 +36,8 @@ def warn(description=None, deprecation=None,
     warnings.warn(w, stacklevel=stacklevel)
 
 
-def Callable(deprecation=None, removal=None,
-             alternative=None, description=None):
+def Callable(deprecation: str | None = None, removal: str | None = None,
+             alternative: str | None = None, description: str | None = None) -> Any:
     """Decorator for deprecated functions.
 
     A deprecation warning will be emitted when the function is called.
@@ -62,8 +65,8 @@ def Callable(deprecation=None, removal=None,
     return _inner
 
 
-def Property(deprecation=None, removal=None,
-             alternative=None, description=None):
+def Property(deprecation: str | None = None, removal: str | None = None,
+             alternative: str | None = None, description: str | None = None) -> Any:
     """Decorator for deprecated properties."""
     def _inner(fun):
         return _deprecated_property(
@@ -106,8 +109,8 @@ class _deprecated_property:
         warn(**self.depreinfo)
         self.__del(obj)
 
-    def setter(self, fset):
+    def setter(self, fset: Any) -> _deprecated_property:
         return self.__class__(self.__get, fset, self.__del, **self.depreinfo)
 
-    def deleter(self, fdel):
+    def deleter(self, fdel: Any) -> _deprecated_property:
         return self.__class__(self.__get, self.__set, fdel, **self.depreinfo)

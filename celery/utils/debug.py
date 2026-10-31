@@ -2,9 +2,11 @@
 import os
 import sys
 import traceback
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from functools import partial
 from pprint import pprint
+from typing import Any
 
 from celery.platforms import signals
 from celery.utils.text import WhateverIO
@@ -39,7 +41,7 @@ def _on_blocking(signum, frame):
 
 
 @contextmanager
-def blockdetection(timeout):
+def blockdetection(timeout: float | None) -> Iterator[Any]:
     """Context that raises an exception if process is blocking.
 
     Uses ``SIGALRM`` to detect blocking functions.
@@ -60,7 +62,7 @@ def blockdetection(timeout):
             signals.reset_alarm()
 
 
-def sample_mem():
+def sample_mem() -> str | None:
     """Sample RSS memory usage.
 
     Statistics can then be output by calling :func:`memdump`.
@@ -80,7 +82,7 @@ def _memdump(samples=10):  # pragma: no cover
     return prev, after_collect
 
 
-def memdump(samples=10, file=None):  # pragma: no cover
+def memdump(samples: int = 10, file: Any = None) -> None:  # pragma: no cover
     """Dump memory statistics.
 
     Will print a sample of all RSS memory samples added by
@@ -99,7 +101,7 @@ def memdump(samples=10, file=None):  # pragma: no cover
     say(f'- rss (end): {after_collect}.')
 
 
-def sample(x, n, k=0):
+def sample(x: Sequence[Any], n: int, k: int = 0) -> Iterator[Any]:
     """Given a list `x` a sample of length ``n`` of that list is returned.
 
     For example, if `n` is 10, and `x` has 100 items, a list of every tenth.
@@ -116,7 +118,7 @@ def sample(x, n, k=0):
         k += j
 
 
-def hfloat(f, p=5):
+def hfloat(f: float, p: int = 5) -> int | str:
     """Convert float to value suitable for humans.
 
     Arguments:
@@ -127,7 +129,7 @@ def hfloat(f, p=5):
     return i if i == f else '{0:.{p}}'.format(f, p=p)
 
 
-def humanbytes(s):
+def humanbytes(s: float) -> str:
     """Convert bytes to human-readable form (e.g., KB, MB)."""
     return next(
         f'{hfloat(s / div if div else s)}{unit}'
@@ -135,14 +137,14 @@ def humanbytes(s):
     )
 
 
-def mem_rss():
+def mem_rss() -> str | None:
     """Return RSS memory usage as a humanized string."""
     p = ps()
     if p is not None:
         return humanbytes(_process_memory_info(p).rss)
 
 
-def ps():  # pragma: no cover
+def ps() -> Any:  # pragma: no cover
     """Return the global :class:`psutil.Process` instance.
 
     Note:
@@ -161,7 +163,7 @@ def _process_memory_info(process):
         return process.get_memory_info()
 
 
-def cry(out=None, sepchr='=', seplen=49):  # pragma: no cover
+def cry(out: Any = None, sepchr: str = '=', seplen: int = 49) -> str:  # pragma: no cover
     """Return stack-trace of all active threads.
 
     See Also:
