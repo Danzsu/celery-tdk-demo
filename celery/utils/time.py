@@ -139,7 +139,7 @@ class _Zone:
             return self.local
         return self.get_timezone(tzinfo)
 
-    def to_local(self, dt: datetime, local=None, orig=None):
+    def to_local(self, dt: datetime, local: tzinfo | None = None, orig: tzinfo | None = None) -> datetime:
         """Converts a datetime to the local timezone."""
 
         if is_naive(dt):

@@ -4,7 +4,7 @@ from __future__ import annotations
 import os
 import posixpath
 from math import ceil
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from kombu.utils.objects import cached_property
 
@@ -23,7 +23,7 @@ CGROUP_ROOT = '/sys/fs/cgroup'
 PROC_SELF_CGROUP = '/proc/self/cgroup'
 
 
-def is_auto_concurrency(value) -> bool:
+def is_auto_concurrency(value: Any) -> bool:
     """Return True if ``value`` is the ``auto`` concurrency sentinel.
 
     Accepts case-insensitive ``"auto"`` with surrounding whitespace stripped.

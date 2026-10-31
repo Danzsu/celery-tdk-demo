@@ -1,4 +1,6 @@
 """Custom maps, sets, sequences, and other data structures."""
+from __future__ import annotations
+
 import time
 from collections import OrderedDict as _OrderedDict
 from collections import deque
@@ -6,7 +8,7 @@ from collections.abc import Callable, Mapping, MutableMapping, MutableSet, Seque
 from heapq import heapify, heappop, heappush
 from itertools import chain, count
 from queue import Empty
-from typing import Any, Dict, Iterable, List  # noqa
+from typing import Any, Iterable, List  # noqa
 
 from .functional import first, uniq
 from .text import match_case
@@ -36,16 +38,14 @@ REPR_LIMITED_SET = """\
 """
 
 
-def force_mapping(m):
-    # type: (Any) -> Mapping
+def force_mapping(m: Any) -> Mapping[Any, Any]:
     """Wrap object into supporting the mapping interface if necessary."""
     if isinstance(m, (LazyObject, LazySettings)):
         m = m._wrapped
     return DictAttribute(m) if not isinstance(m, Mapping) else m
 
 
-def lpmerge(L, R):
-    # type: (Mapping, Mapping) -> Mapping
+def lpmerge(L: MutableMapping[Any, Any], R: Mapping[Any, Any]) -> MutableMapping[Any, Any]:
     """In place left precedent dictionary merge.
 
     Keeps values from `L`, if the value in `R` is :const:`None`.
@@ -67,8 +67,7 @@ class OrderedDict(_OrderedDict):
     if not hasattr(_OrderedDict, 'move_to_end'):
         if _dict_is_ordered:  # pragma: no cover
 
-            def move_to_end(self, key, last=True):
-                # type: (Any, bool) -> None
+            def move_to_end(self, key: Any, last: bool = True) -> None:
                 if not last:
                     # we don't use this argument, and the only way to
                     # implement this on PyPy seems to be O(n): creating a
@@ -78,8 +77,7 @@ class OrderedDict(_OrderedDict):
 
         else:
 
-            def move_to_end(self, key, last=True):
-                # type: (Any, bool) -> None
+            def move_to_end(self, key: Any, last: bool = True) -> None:
                 link = self._OrderedDict__map[key]
                 link_prev = link[0]
                 link_next = link[1]
@@ -143,15 +141,13 @@ class DictAttribute:
         # type: (Any, Any) -> None
         return setattr(self.obj, key, value)
 
-    def get(self, key, default=None):
-        # type: (Any, Any) -> Any
+    def get(self, key: Any, default: Any = None) -> Any:
         try:
             return self[key]
         except KeyError:
             return default
 
-    def setdefault(self, key, default=None):
-        # type: (Any, Any) -> None
+    def setdefault(self, key: Any, default: Any = None) -> None:
         if key not in self:
             self[key] = default
 
@@ -219,14 +215,12 @@ class ChainMap(MutableMapping):
             _observers=[],
         )
 
-    def add_defaults(self, d):
-        # type: (Mapping) -> None
+    def add_defaults(self, d: Mapping[Any, Any]) -> None:
         d = force_mapping(d)
         self.defaults.insert(0, d)
         self.maps.insert(1, d)
 
-    def pop(self, key, *default):
-        # type: (Any, *Any) -> Any
+    def pop(self, key: Any, *default: Any) -> Any:
         _key = self._key(key)
         try:
             return self.maps[0].pop(_key, *default)
@@ -263,12 +257,10 @@ class ChainMap(MutableMapping):
         except KeyError:
             raise KeyError(f'Key not found in first mapping: {key!r}')
 
-    def clear(self):
-        # type: () -> None
+    def clear(self) -> None:
         self.changes.clear()
 
-    def get(self, key, default=None):
-        # type: (Any, Any) -> Any
+    def get(self, key: Any, default: Any = None) -> Any:
         try:
             return self[key]
         except KeyError:
@@ -291,13 +283,11 @@ class ChainMap(MutableMapping):
         return any(self.maps)
     __nonzero__ = __bool__  # Py2
 
-    def setdefault(self, key, default=None):
-        # type: (Any, Any) -> None
+    def setdefault(self, key: Any, default: Any = None) -> None:
         if key not in self:
             self[key] = default
 
-    def update(self, *args, **kwargs):
-        # type: (*Any, **Any) -> Any
+    def update(self, *args: Any, **kwargs: Any) -> Any:
         if args:
             # args contains at most one item: a mapping, or a list, tuple, or
             # generator of key/value pairs. Normalize it to a dict so
@@ -314,13 +304,11 @@ class ChainMap(MutableMapping):
             self, ', '.join(map(repr, self.maps)))
 
     @classmethod
-    def fromkeys(cls, iterable, *args):
-        # type: (type, Iterable, *Any) -> 'ChainMap'
+    def fromkeys(cls, iterable: Iterable[Any], *args: Any) -> ChainMap:
         """Create a ChainMap with a single dict created from the iterable."""
         return cls(dict.fromkeys(iterable, *args))
 
-    def copy(self):
-        # type: () -> 'ChainMap'
+    def copy(self) -> ChainMap:
         return self.__class__(self.maps[0].copy(), *self.maps[1:])
     __copy__ = copy  # Py2
 
@@ -347,7 +335,7 @@ class ChainMap(MutableMapping):
         return (self[key] for key in self)
     itervalues = _iterate_values
 
-    def bind_to(self, callback):
+    def bind_to(self, callback: Callable[..., Any]) -> None:
         self._observers.append(callback)
 
     keys = _iterate_keys
@@ -378,8 +366,7 @@ class ConfigurationView(ChainMap, AttributeDictMixin):
             _keys=keys,
         )
 
-    def copy(self):
-        # type: () -> 'ConfigurationView'
+    def copy(self) -> ConfigurationView:
         copied = self.__class__(
             self.changes.copy(), self.defaults, self._keys, self.prefix,
         )
@@ -419,19 +406,16 @@ class ConfigurationView(ChainMap, AttributeDictMixin):
         # type: (str, Any) -> Any
         self.changes[self._key(key)] = value
 
-    def first(self, *keys):
-        # type: (*str) -> Any
+    def first(self, *keys: str) -> Any:
         return first(None, (self.get(key) for key in keys))
 
-    def get(self, key, default=None):
-        # type: (str, Any) -> Any
+    def get(self, key: str, default: Any = None) -> Any:
         try:
             return self[key]
         except KeyError:
             return default
 
-    def clear(self):
-        # type: () -> None
+    def clear(self) -> None:
         """Remove all changes, but keep defaults."""
         self.changes.clear()
 
@@ -441,8 +425,7 @@ class ConfigurationView(ChainMap, AttributeDictMixin):
         keys = self._to_keys(key)
         return any(contains(k) for k in keys)
 
-    def swap_with(self, other):
-        # type: (ConfigurationView) -> None
+    def swap_with(self, other: ConfigurationView) -> None:
         changes = other.__dict__['changes']
         defaults = other.__dict__['defaults']
         self.__dict__.update(
@@ -552,14 +535,12 @@ class LimitedSet:
         if self._heap_overload >= self.max_heap_percent_overload:
             self._refresh_heap()
 
-    def clear(self):
-        # type: () -> None
+    def clear(self) -> None:
         """Clear all data, start from scratch again."""
         self._data.clear()
         self._heap[:] = []
 
-    def add(self, item, now=None):
-        # type: (Any, float) -> None
+    def add(self, item: Any, now: float | None = None) -> None:
         """Add a new item, or reset the expiry time of an existing item.
 
         Arguments:
@@ -577,8 +558,7 @@ class LimitedSet:
         if self.maxlen and len(self._data) >= self.maxlen:
             self.purge()
 
-    def update(self, other):
-        # type: (Iterable) -> None
+    def update(self, other: Iterable[Any] | Mapping[Any, Any]) -> None:
         """Update this set from other LimitedSet, dict or iterable."""
         if not other:
             return
@@ -619,15 +599,13 @@ class LimitedSet:
             for obj in other:
                 self.add(obj)
 
-    def discard(self, item):
-        # type: (Any) -> None
+    def discard(self, item: Any) -> None:
         # mark an existing item as removed.  If KeyError is not found, pass.
         self._data.pop(item, None)
         self._maybe_refresh_heap()
     pop_value = discard
 
-    def purge(self, now=None):
-        # type: (float) -> None
+    def purge(self, now: float | Callable[[], float] | None = None) -> None:
         """Check oldest items and remove them if needed.
 
         Arguments:
@@ -666,8 +644,7 @@ class LimitedSet:
         # still hold an outdated entry for an item that was re-added since.
         return self._data.get(entry[2]) is entry
 
-    def as_dict(self):
-        # type: () -> Dict
+    def as_dict(self) -> dict[Any, float]:
         """Whole set as serializable dictionary.
 
         Example:
@@ -766,18 +743,15 @@ class Messagebuffer(Evictable):
         self._len = self.data.__len__
         self._extend = self.data.extend
 
-    def put(self, item):
-        # type: (Any) -> None
+    def put(self, item: Any) -> None:
         self._append(item)
         self.maxsize and self._evict()
 
-    def extend(self, it):
-        # type: (Iterable) -> None
+    def extend(self, it: Iterable[Any]) -> None:
         self._extend(it)
         self.maxsize and self._evict()
 
-    def take(self, *default):
-        # type: (*Any) -> Any
+    def take(self, *default: Any) -> Any:
         try:
             return self._pop()
         except IndexError:
@@ -861,8 +835,7 @@ class BufferMap(OrderedDict, Evictable):
         self.total = sum(len(buf) for buf in self.values())
         self.maxsize and self.evict()
 
-    def put(self, key, item):
-        # type: (Any, Any) -> None
+    def put(self, key: Any, item: Any) -> None:
         buf = self._get_or_create_buffer(key)
         before = len(buf)
         buf.put(item)
@@ -870,16 +843,14 @@ class BufferMap(OrderedDict, Evictable):
         self.move_to_end(key)   # least recently used.
         self.maxsize and self._evict()
 
-    def extend(self, key, it):
-        # type: (Any, Iterable) -> None
+    def extend(self, key: Any, it: Iterable[Any]) -> None:
         buf = self._get_or_create_buffer(key)
         before = len(buf)
         buf.extend(it)
         self.total += len(buf) - before
         self.maxsize and self._evict()
 
-    def take(self, key, *default):
-        # type: (Any, *Any) -> Any
+    def take(self, key: Any, *default: Any) -> Any:
         item, throw = None, False
         try:
             buf = self[key]

@@ -1,8 +1,13 @@
 """Abstract classes."""
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
+from typing import Any, TypeVar
 
 __all__ = ('CallableTask', 'CallableSignature')
+
+_T = TypeVar('_T')
 
 
 def _hasattr(C, attr):
@@ -20,7 +25,7 @@ class _AbstractClass(metaclass=ABCMeta):
         ) or NotImplemented
 
     @classmethod
-    def register(cls, other):
+    def register(cls, other: _T) -> _T:
         # we override `register` to return other for use as a decorator.
         type(cls).register(cls, other)
         return other
@@ -34,15 +39,15 @@ class CallableTask(_AbstractClass, Callable):  # pragma: no cover
     })
 
     @abstractmethod
-    def delay(self, *args, **kwargs):
+    def delay(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
     @abstractmethod
-    def apply_async(self, *args, **kwargs):
+    def apply_async(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
     @abstractmethod
-    def apply(self, *args, **kwargs):
+    def apply(self, *args: Any, **kwargs: Any) -> Any:
         pass
 
     @classmethod
@@ -59,78 +64,82 @@ class CallableSignature(CallableTask):  # pragma: no cover
 
     @property
     @abstractmethod
-    def name(self):
+    def name(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def type(self):
+    def type(self) -> Any:
         pass
 
     @property
     @abstractmethod
-    def app(self):
+    def app(self) -> Any:
         pass
 
     @property
     @abstractmethod
-    def id(self):
+    def id(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def task(self):
+    def task(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def args(self):
+    def args(self) -> tuple[Any, ...]:
         pass
 
     @property
     @abstractmethod
-    def kwargs(self):
+    def kwargs(self) -> dict[str, Any]:
         pass
 
     @property
     @abstractmethod
-    def options(self):
+    def options(self) -> dict[str, Any]:
         pass
 
     @property
     @abstractmethod
-    def subtask_type(self):
+    def subtask_type(self) -> str | None:
         pass
 
     @property
     @abstractmethod
-    def chord_size(self):
+    def chord_size(self) -> int | None:
         pass
 
     @property
     @abstractmethod
-    def immutable(self):
+    def immutable(self) -> bool:
         pass
 
     @abstractmethod
-    def clone(self, args=None, kwargs=None):
+    def clone(
+        self,
+        args: Sequence[Any] | None = None,
+        kwargs: Mapping[str, Any] | None = None,
+    ) -> CallableSignature:
         pass
 
     @abstractmethod
-    def freeze(self, id=None, group_id=None, chord=None, root_id=None,
-               group_index=None):
+    def freeze(self, id: str | None = None, group_id: str | None = None, chord: Any = None,
+               root_id: str | None = None, group_index: int | None = None) -> Any:
         pass
 
     @abstractmethod
-    def set(self, immutable=None, **options):
+    def set(self, immutable: bool | None = None, **options: Any) -> CallableSignature:
         pass
 
     @abstractmethod
-    def link(self, callback):
+    def link(self, callback: Any) -> Any:
         pass
 
     @abstractmethod
-    def link_error(self, errback):
+    def link_error(self, errback: Any) -> Any:
         pass
 
     @abstractmethod
